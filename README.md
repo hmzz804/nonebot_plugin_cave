@@ -1,5 +1,6 @@
+# nonebot_plugin_chazhanli
 
-
+适用于 Nonebot2 的 cave（回声洞）插件
 
 
 ## 目前 __cave__ 指令总览：
