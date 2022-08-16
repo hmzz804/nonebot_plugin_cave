@@ -1,6 +1,6 @@
 # nonebot_plugin_cave
 
-适用于 Nonebot2 的 cave（回声洞）插件
+适用于 Nonebot2 的 cave（回声洞）插件  
     version: 1.0.0    
 
 ## 目前 __cave__ 指令总览：
