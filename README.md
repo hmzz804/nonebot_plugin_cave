@@ -1,4 +1,4 @@
-# nonebot_plugin_chazhanli
+# cave
 
 适用于 Nonebot2 的 cave（回声洞）插件
 
