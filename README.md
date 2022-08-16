@@ -1,4 +1,4 @@
-# cave
+# nonebot_plugin_cave
 
 适用于 Nonebot2 的 cave（回声洞）插件
 
