@@ -1,7 +1,7 @@
 # nonebot_plugin_cave
 
 适用于 Nonebot2 的 cave（回声洞）插件  
-    version: 1.0.0    
+    _version:3.3_    
 
 ## 目前 __cave__ 指令总览：
 以下命令需要加 命令前缀（默认为/），可自行设置为空
