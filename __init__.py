@@ -28,8 +28,8 @@ CAVE_PATH = r'src/plugins/cave/cave.json'
 DATA_PATH = r'src/plugins/cave/data.json'
 
 env_config = Config(**get_driver().config.dict())
-super_users = env_config.superusers # super_users -> Set[str]
-white_b_owner = env_config.white_b_owner # white_b_owner -> Set[str]
+super_users = env_config.superusers
+white_b_owner = env_config.white_b_owner
 
 try:
     with open(CAVE_PATH,"r") as f:
@@ -168,7 +168,8 @@ async def _cave_handle(
                         "contributor_id":event.get_user_id(),
                         "state":1
                     }
-                    data_dict["groups_dict"][str(event.group_id)]["m_list"].append(new_element_dict)
+                    for i in data_dict["groups_dict"]:
+                        data_dict["groups_dict"][i]["m_list"].append(new_element_dict)
                     cave_list.append(new_element_dict)
                     write_in(path = CAVE_PATH, new_content = cave_list)
                     write_in(path = DATA_PATH, new_content = data_dict)
@@ -311,12 +312,13 @@ async def _cave_handle(
                     await _cave.finish(message = f"多余的参数“{args}”")
 
             elif args[1] == "h":
-                args = args.replace('-h', '', 1).strip()
-                if not args:
-                    url = "https://c2cpicdw.qpic.cn/offpic_new/2166908863//2166908863-3512597815-9272CB4E118A65EC61AD470B23DECFF3/0?term=2"
-                    await _cave.finish(message = MessageSegment.image(url))
-                else:
-                    await _cave.finish(message = f"多余的参数“{args}”")
+                #args = args.replace('-h', '', 1).strip()
+                #if not args:
+                #    url = "https://c2cpicdw.qpic.cn/offpic_new/2166908863//2166908863-3512597815-9272CB4E118A65EC61AD470B23DECFF3/0?term=2"
+                #    await _cave.finish(message = MessageSegment.image(url))
+                #else:
+                #    await _cave.finish(message = f"多余的参数“{args}”")
+                pass
 
             elif args[1] == "v":
                 args = args.replace('-v', '', 1).strip()
@@ -409,7 +411,6 @@ async def _cave_handle(
                                                 at_bool = True
                                         if not at_bool:
                                             await _cave.finish(message = f"无法将“{args[2:]}”识别为有效数字或艾特")
-
                                     B_a_id = str(B_a_id)
                                     B_a_bool = False
                                     for i in data_dict["white_B"]:
@@ -572,46 +573,32 @@ async def _setcave_handle(
                         await _setcave.finish(message = "参数呢")
                 elif args[1] == "l":
                     args = args.replace("-l", "", 1).strip()
-                    await _setcave.finish(message = f"因go-cqhttp的rc3版本存在bug，私聊合并转发暂时无法使用 详见：\n https://github.com/Mrs4s/go-cqhttp/issues/1558 \n https://github.com/Mrs4s/go-cqhttp/issues/1557")
-#                    if not args:
-#                        forward_msg = []
-#                       for i in cave_list:
-#############################if not i["approved"]:############################## 此处有严重问题，先预留
-#                                #虚拟构建合并转发
-#                                every_msg = {
-#                                    "type": "node",
-#                                    "data":{
-#                                       "name": "投稿人",
-#			                            "uin": event.self_id,
-#			                            "content": f'待审核回声洞（{i["id"]}）：'
-#                                        + f"\n"
-#                                        + i["cqcode"]
-#                                        + f"\n"
-#                                        + f"——{(await bot.get_stranger_info(user_id=i['contributor_id']))['nickname']}（{i['contributor_id']}）"
-#                                        + f"（{i['contributor_id']}）"
-#                                    }
-#                                }
-#
-#                                #以实际消息构建合并转发
-#                                every_msg = {
-#                                   "type":"node",
-#                                   "data":{
-#                                       "id":i['msg_id']
-#                                   }
-#                              }
-#
-#                               forward_msg.append(every_msg)
-#
-#                       await bot.send_private_forward_msg(user_id=2166908863,messages=forward_msg)
-#                       await _setcave.finish(message=f"当前待审核的回声洞：\n")
-#                   else:
-#                       await _setcave.finish(message=f"多余的参数“{args}”")
+                    if not args:
+                        forward_msg = []
+                        for i in cave_list:
+                            if i["state"] == 1:
+                                every_msg = {
+                                    "type": "node",
+                                    "data":{
+                                       "name": "投稿人",
+			                            "uin": event.self_id,
+			                            "content": f'待审核回声洞（{i["cave_id"]}）：'
+                                        + f"\n"
+                                        + i["cqcode"]
+                                        + f"\n"
+                                        + f"——{(await bot.get_stranger_info(user_id=i['contributor_id']))['nickname']}（{i['contributor_id']}）"
+                                        + f"（{i['contributor_id']}）"
+                                    }
+                                }
+                                forward_msg.append(every_msg)
+                        await bot.send_private_forward_msg(user_id=event.user_id,messages=forward_msg)
+                        await _setcave.finish()
+                    else:
+                        await _setcave.finish(message=f"多余的参数“{args}”")
 
                 elif args[1] == "e":
-                    args = args.replace("-e", "", 1).strip()
-                    # setcave-e暂时不写了（逃
-                    await _setcave.finish(message="setcave-e暂未实现（逃")
-
+                    pass
+                
                 else:
                     await _setcave.finish(message=f"无法将“{args[1]}识别为有效参数")
             else:
