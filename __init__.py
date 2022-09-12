@@ -1,6 +1,7 @@
 import datetime
 import json
 import random
+import os
 
 from nonebot import Config, get_driver
 from nonebot.adapters import Bot
@@ -31,17 +32,11 @@ env_config = Config(**get_driver().config.dict())
 super_users = env_config.superusers
 white_b_owner = env_config.white_b_owner
 
-try:
-    with open(CAVE_PATH,"r") as f:
-        pass
-except:
+if not os.path.exists(CAVE_PATH):
     with open(CAVE_PATH,"w") as g:
         initialize_list = []
         json.dump(initialize_list, g, indent=4)
-try:
-    with open(DATA_PATH,"r") as f:
-        pass
-except:
+if not os.path.exists(DATA_PATH):
     with open(DATA_PATH,"w") as g:
         initialize_dict = {
             "groups_dict":{},
@@ -50,7 +45,6 @@ except:
             "id_num": 0
         }
         json.dump(initialize_dict, g, indent=4)
-
 
 def read(path:str):
     with open(path, "r") as a:
