@@ -53,14 +53,15 @@ class Cave():
 
     def __check_cd(self, cd:int, unit:str, last_time:str) -> list:
         '''
-        检查cd情况
-        `cd` : 冷却时间的数字
-        `unit` : 冷却时间的单位
-        `last_time` : 上次使用时间  
-
+        ## 检查cd情况  
+        参数：  
+        - `cd` : 冷却时间的数字
+        - `unit` : 冷却时间的单位
+        - `last_time` : 上次使用时间
+        
         返回列表：  
-        第0项(str):现在时间与上次时间的差值字符串
-        第1项(bool):cd是否已过
+        - 第0项(str):现在时间与上次时间的差值字符串
+        - 第1项(bool):cd是否已过
         '''
         now_time = datetime.datetime.now()
         last_time = datetime.datetime.strptime(last_time,"%Y-%m-%d %H:%M:%S.%f")
@@ -101,9 +102,10 @@ class Cave():
         print(str(self.cave_path))
 
 
-    def select(self, group_id:str):
+    def select(self, group_id:str) -> dict:
         '''
         抽取cave
+
         '''
         group_bool = False
         group_dict = self.__data["groups_dict"]
@@ -118,37 +120,34 @@ class Cave():
             if i["state"] == 0:
                 list_bool = True
                 break
-        if self.__cave and list_bool:
-            if group_bool:
-                check_cd_list = self.__check_cd(self.__data)
-                if check_cd_list[1]:
-                    while True:
-                        send_cave = random.choice(self.__cave)
-                        if send_cave["state"] == 0:
-                            self.__data["groups_dict"][group]["last_time"] = str(datetime.datetime.now())
-                            self.__save()
-
-                            # 此处应该发送消息了
-                            """
-                            await _cave.finish(
-                                message = f"回声洞 ——（{send_cave['cave_id']}）"
-                                + f"\n"
-                                + Message(send_cave["cqcode"])
-                                + f"\n——"
-                                + (await bot.get_stranger_info(user_id=send_cave['contributor_id']))["nickname"]
-                            )
-                            """
-                else:
-                    pass
-                    # 正在冷却
-                    # await _cave.finish(message = f"cave冷却中,恁稍等{check_cd_list[0]}")
-            else:
-                pass
-                #await _cave.finish(message = "未找到此群组存储的cd信息，请超管设置此群冷却时间")
-        else:
+        if not (self.__cave and list_bool):
             pass
             #await _cave.finish(message = "库内无内容")
+        if not group_bool:
+            pass
+            #await _cave.finish(message = "未找到此群组存储的cd信息，请超管设置此群冷却时间")
+        check_cd_list = self.__check_cd(self.__data)
+        if not check_cd_list[1]:
+            pass
+            # 正在冷却
+            # await _cave.finish(message = f"cave冷却中,恁稍等{check_cd_list[0]}")
 
+        while True:
+            send_cave = random.choice(self.__cave)
+            if send_cave["state"] == 0:
+                self.__data["groups_dict"][group]["last_time"] = str(datetime.datetime.now())
+                self.__save()
+                
+                # 此处应该发送消息了
+                """
+                await _cave.finish(
+                    message = f"回声洞 ——（{send_cave['cave_id']}）"
+                    + f"\n"
+                    + Message(send_cave["cqcode"])
+                    + f"\n——"
+                    + (await bot.get_stranger_info(user_id=send_cave['contributor_id']))["nickname"]
+                )
+                """
 
     def add(self):
         '''
