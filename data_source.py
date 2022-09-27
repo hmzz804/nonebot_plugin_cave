@@ -102,10 +102,13 @@ class Cave():
         print(str(self.cave_path))
 
 
-    def select(self, group_id:str) -> dict:
+    def select(self, group_id:str) -> str:
         '''
-        抽取cave
+        ## 抽取cave  
+        参数：  
+        - `group_id` : 群号 
 
+        返回发送消息的cq码
         '''
         group_bool = False
         group_dict = self.__data["groups_dict"]
@@ -121,17 +124,12 @@ class Cave():
                 list_bool = True
                 break
         if not (self.__cave and list_bool):
-            pass
-            #await _cave.finish(message = "库内无内容")
+            return '库内无内容'
         if not group_bool:
-            pass
-            #await _cave.finish(message = "未找到此群组存储的cd信息，请超管设置此群冷却时间")
+            return '未找到此群组存储的cd信息，请超管设置此群冷却时间'
         check_cd_list = self.__check_cd(self.__data)
         if not check_cd_list[1]:
-            pass
-            # 正在冷却
-            # await _cave.finish(message = f"cave冷却中,恁稍等{check_cd_list[0]}")
-
+            return f"cave冷却中,恁稍等{check_cd_list[0]}"
         while True:
             send_cave = random.choice(self.__cave)
             if send_cave["state"] == 0:
