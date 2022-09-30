@@ -4,7 +4,6 @@ import random
 from pathlib import Path
 from typing import Dict, List
 
-
 class Cave():
     def __init__(self):
         # 路径
@@ -46,6 +45,9 @@ class Cave():
             self.__load()
 
     def __save(self):
+        """
+        保存`cave.json`,`data.json`
+        """
         with self.data_path.open('w') as f:
             json.dump(self.__data, f, indent=4)
         with self.cave_path.open('w') as f:
@@ -99,54 +101,41 @@ class Cave():
             print(f.read())
         with self.cave_path.open('r') as f:
             print(f.read())
-        print(str(self.cave_path))
 
+        print(self.__data)
+        print(self.__cave)
 
-    def select(self, group_id:str) -> str:
+    def select(self, group_id:str) -> dict:
         '''
         ## 抽取cave  
         参数：  
-        - `group_id` : 群号 
+        - `group_id` : 群号(string) 
 
-        返回发送消息的cq码
+        返回要发送的消息的部分内容
         '''
-        group_bool = False
-        group_dict = self.__data["groups_dict"]
-        for i in group_dict:
-            if i == group_id:
-                group_bool = True
-                group = i
-                cd_dict = group_dict[i]
-                break
-        list_bool = False
-        for i in self.__cave:
-            if i["state"] == 0:
-                list_bool = True
-                break
-        if not (self.__cave and list_bool):
-            return '库内无内容'
-        if not group_bool:
-            return '未找到此群组存储的cd信息，请超管设置此群冷却时间'
-        check_cd_list = self.__check_cd(self.__data)
-        if not check_cd_list[1]:
-            return f"cave冷却中,恁稍等{check_cd_list[0]}"
+        if group_id not in self.__data["groups_dict"]:
+            self.__data["groups_dict"][group_id] = {
+                "cd_num": 1,
+                "cd_unit": "sec",
+                "last_time": "1000-01-01 00:00:00.114514",
+                "m_list": [],
+                "white_A":[]
+            }
+            self.__save()
+            return {'error':'初次使用，正在新建此群冷却存档，请超管使用"/cave-c[数字][单位]"设置冷却时间。'}
+        if (0 not in list(i['state']  for i in self.__cave) ) or \
+            self.__cave == []:
+            return {'error':'库内暂无内容。'}
+        check_cd_result = self.__check_cd(self.__data)
+        if not check_cd_result[1]:
+            return {'error':f"cave冷却中,恁稍等{check_cd_result[0]}"}
         while True:
-            send_cave = random.choice(self.__cave)
-            if send_cave["state"] == 0:
-                self.__data["groups_dict"][group]["last_time"] = str(datetime.datetime.now())
+            send_msg = random.choice(self.__cave)
+            if send_msg["state"] == 0:
+                self.__data["groups_dict"][group_id]["last_time"] = str(datetime.datetime.now())
                 self.__save()
-                
-                # 此处应该发送消息了
-                """
-                await _cave.finish(
-                    message = f"回声洞 ——（{send_cave['cave_id']}）"
-                    + f"\n"
-                    + Message(send_cave["cqcode"])
-                    + f"\n——"
-                    + (await bot.get_stranger_info(user_id=send_cave['contributor_id']))["nickname"]
-                )
-                """
-
+                return send_msg
+    
     def add(self):
         '''
         添加cave
