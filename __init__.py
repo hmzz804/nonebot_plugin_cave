@@ -30,7 +30,7 @@ async def cave_handle(
     args: Message = CommandArg()
 ):
     cave = Cave(group_id = str(event.group_id))
-    if not args :
+    if not args:
         msg = cave.select()
         if 'error' in msg:
             await cave_matcher.finish(message = msg['error'])
@@ -41,5 +41,23 @@ async def cave_handle(
             + f"\n——"
             + (await bot.get_stranger_info(user_id=msg['contributor_id']))["nickname"]
         )
-    else:
+    args = str(args).strip()
+    if not (len(args) >= 2 and args[0] == "-") : await cave_matcher.finish(message = "参数格式有误!")
+    if args[1] == "a":
         ...
+    elif args[1] == "r":
+        ...
+    elif args[1] == "g":
+        ...
+    elif args[1] == "c":
+        ...
+    elif args[1] == "m":
+        ...
+    elif args[1] == "h":
+        ...
+    elif args[1] == "v":
+        ...
+    elif args[1] == "w":
+        ...
+    else: await cave_matcher.finish(message = f"无法将“{args[1]}”识别为有效参数")
+
