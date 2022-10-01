@@ -4,18 +4,18 @@ import random
 from pathlib import Path
 from typing import Dict, List
 
-
 class Cave():
-    def __init__(self):
+    def __init__(self, group_id:str) -> None:
         # 路径
         self.data_path = Path(r"data/cave/data.json").absolute()
         self.cave_path = Path(r"data/cave/cave.json").absolute()
         # 路径文件夹
         self.dir = Path(r"data/cave").absolute()
         self.dir.mkdir(parents=True, exist_ok=True)
-        # 初始化__cave和__data
+        # 初始化属性
         self.__cave: List[dict] = []
         self.__data: Dict = {}
+        self.__group_id: str = group_id
         self.__load()
 
     def __check_path(self) -> bool:
@@ -43,7 +43,16 @@ class Cave():
             with self.cave_path.open("w") as f:
                 initialize_list = []
                 json.dump(initialize_list, f, indent=4)
-            self.__load()
+        if self.__group_id not in self.__data['groups_dict']:
+            self.__data["groups_dict"][self.__group_id] = {
+                "cd_num": 1,
+                "cd_unit": "sec",
+                "last_time": "1000-01-01 00:00:00.114514",
+                "m_list": [],
+                "white_A":[]
+            }
+        self.__save()
+        self.__load()
 
     def __save(self):
         """
@@ -105,23 +114,11 @@ class Cave():
         print(self.__data)
         print(self.__cave)
 
-    def select(self, group_id:str) -> dict:
+    def select(self) -> dict:
         '''
         抽取cave \\
-        参数：  
-            group_id : 群号(string) 
         返回要发送的消息的部分内容
         '''
-        if group_id not in self.__data["groups_dict"]:
-            self.__data["groups_dict"][group_id] = {
-                "cd_num": 1,
-                "cd_unit": "sec",
-                "last_time": "1000-01-01 00:00:00.114514",
-                "m_list": [],
-                "white_A":[]
-            }
-            self.__save()
-            return {'error':'初次使用，正在新建此群冷却存档，请超管使用"/cave-c[数字][单位]"设置冷却时间。'}
         if (0 not in list(i['state']  for i in self.__cave) ) or \
             self.__cave == []:
             return {'error':'库内暂无内容。'}
@@ -131,7 +128,7 @@ class Cave():
         while True:
             send_msg = random.choice(self.__cave)
             if send_msg["state"] == 0:
-                self.__data["groups_dict"][group_id]["last_time"] = str(datetime.datetime.now())
+                self.__data["groups_dict"][self.__group_id]["last_time"] = str(datetime.datetime.now())
                 self.__save()
                 return send_msg
     
@@ -180,7 +177,7 @@ class Cave():
                 return {'success':'删除成功！'}
         return {'error':f"索引为“{index}”的内容不存在或已被删除。"}
 
-    def get(self, index:int) -> dict:
+    def get_cave(self, index:int) -> dict:
         '''
         查看cave
             index : 序号
@@ -190,25 +187,50 @@ class Cave():
                 return i
         return {'error':f'索引为“{index}”的内容不存在或已被删除。'}
     
-    def set_cd(self, group_id:str, cd_num:int, cd_unit:str):
+    def set_cd(self, cd_num:int, cd_unit:str):
         '''
         设置群冷却时间
-            group_id : 群号
             cd_num : 冷却时间的数字
             cd_unit : 冷却时间的单位('sec','min','')
         '''
         if cd_unit not in ['sec','min','hour']: return {'error':f'无法将“{cd_unit}”识别为有效单位'}
         if not(0 < cd_num < 500): return {'error':'冷却时间需大于0，小于500'}
-        self.__data["groups_dict"][group_id]["cd_num"] = cd_num
-        self.__data["groups_dict"][group_id]["cd_unit"] = cd_unit
-        self.__data["groups_dict"][group_id]["last_time"] = "1000-01-01 00:00:00.114514"
+        self.__data["groups_dict"][self.__group_id]["cd_num"] = cd_num
+        self.__data["groups_dict"][self.__group_id]["cd_unit"] = cd_unit
+        self.__data["groups_dict"][self.__group_id]["last_time"] = "1000-01-01 00:00:00.114514"
+        self.__save()
         return {'success':f'成功修改本群cave冷却时间为{cd_num}{cd_unit}'}
 
-    def m(self, group_id):
+    def get_m(self) -> dict:
         '''
-        获取新增的
+        获取新增的投稿的审核情况，时间截至到上次获取\\
+        返回信息列表，并在文件中清除
         '''
+        m_info = self.__data["groups_dict"][self.__group_id]["m_list"]
+        if m_info == [] : return {'error':'暂无新增的回声洞处理'}
+        self.__data["groups_dict"][self.__group_id]["m_list"]:list.clear()
+        self.__save()
+        return m_info
 
+    def A_add(self, add_id:str):
+        self.__data["groups_dict"][self.__group_id]["white_A"].append(add_id)
+        self.__save()
+
+    def A_remove(self):
+        pass
+
+    def A_get(self):
+        pass
+
+    def B_add(self):
+        pass
+
+    def B_remove(self):
+        pass
+
+    def B_get(self):
+        pass 
+        
 
 """
 state
