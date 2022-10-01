@@ -59,14 +59,49 @@ async def cave_handle(
                 + f"\n——{(await bot.get_stranger_info(user_id = event.get_user_id()))['nickname']}"
                 + f"（{event.get_user_id()}）"
             )
-        await cave_matcher.finish(message = MessageSegment(msg['success']) )
+        await cave_matcher.finish(message = Message(msg['success']) )
     
     elif args[1] == "r":
-        ...
+        if not cave.check_wA_id(event.get_user_id()): await cave_matcher.finish(message = '无-r权限！')
+        args = args.replace('-r', '', 1).strip()
+        if not args: await cave_matcher.finish(message = "参数呢？")
+        try: index = int(args)
+        except: await cave_matcher.finish(message = "后置参数类型有误，请确保为数字")
+        msg = cave.remove(index = index)
+        if 'error' in msg: await cave_matcher.finish(message = msg['error'])
+        elif 'success' in msg: await cave_matcher.finish(message = msg['success'])
+        else: logger.error("There is something wrong with Cave.remove()")
+
     elif args[1] == "g":
-        ...
+        if not cave.check_wA_id(event.get_user_id()): await cave_matcher.finish(message = '无-g权限！')
+        args = args.replace('-g', '', 1).strip()
+        if not args: await cave_matcher.finish(message = "参数呢？")
+        try: index = int(args)
+        except: await cave_matcher.finish(message = "后置参数类型有误，请确保为数字")
+        msg = cave.get_cave(index = index)
+        if 'error' in msg: await cave_matcher.finish(message = msg['error'])
+        else: await cave_matcher.finish(
+            message = f"回声洞 ——（{msg['cave_id']}）"
+            + f"\n"
+            + Message(msg["cqcode"])
+            + f"\n——"
+            + (await bot.get_stranger_info(user_id = msg['contributor_id']))["nickname"]
+        )
+
     elif args[1] == "c":
-        ...
+        if event.get_user_id() not in super_users: await cave_matcher.finish(message = "无-c权限")
+        args = args.replace("-c", "", 1).strip()
+        args_list = args.split(" ")
+        if len(args_list) != 2: await cave_matcher.finish(message = f"无法将“{args}”识别为有效参数，请注意数字和单位之间以空格分隔。")
+        try: cd_num = int(args_list[0])
+        except: await cave_matcher.finish(message = f"无法将“{args_list[0]}”识别为有效数字")
+        if not (0 < cd_num < 500): await cave_matcher.finish(message = "冷却时间需大于0，小于500") 
+        if args[1] not in ["sec","min","hour"]: await cave_matcher.finish(message = f"无法将“{args_list[1]}”识别为有效单位")
+        msg = cave.set_cd(cd_num = cd_num, cd_unit = args[1])
+        if 'error' in msg: await cave_matcher.finish(message = msg['error'])
+        elif 'success' in msg: await cave_matcher.finish(message = msg['success'])
+        else: logger.error("There is something wrong with Cave.set_cd()")
+
     elif args[1] == "m":
         ...
     elif args[1] == "h":

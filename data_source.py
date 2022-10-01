@@ -23,7 +23,7 @@ class Cave():
         """
         读取`cave.json`,`data.json`
         """
-        if self.__check_path():
+        if self.check_path():
             with self.data_path.open("r") as f:
                 self.__data: Dict = json.load(f)
             with self.cave_path.open("r") as f:
@@ -60,26 +60,26 @@ class Cave():
         with self.cave_path.open('w') as f:
             json.dump(self.__cave, f, indent=4)
 
-    def __check_path(self) -> bool:
+    def check_path(self) -> bool:
         '''
         检查是否包含存储数据的路径
         '''
         return self.data_path.exists() and self.data_path.is_file() \
             and self.cave_path.exists() and self.data_path.is_file()
 
-    def __check_wA_id(self, id:str) -> bool:
+    def check_wA_id(self, id:str) -> bool:
         '''
         检查白名单A中是否有指定id
         '''
         return id in [i for i in self.__data["groups_id"][self.__group_id]["white_A"]]
 
-    def __check_wB_id(self, id:str) -> bool:
+    def check_wB_id(self, id:str) -> bool:
         '''
         检查白名单B中是否有指定id
         '''
         return id in [i for i in self.__data["white_B"]]
 
-    def __check_set_id(self, id:int, change_state:int) -> bool:
+    def check_set_id(self, id:int, change_state:int) -> bool:
         '''
         检查要操作的id的状态,并将传入的id的state改为change_state\\
         state值的意义：
@@ -95,7 +95,7 @@ class Cave():
                 return i['state'] == 1
         return False
 
-    def __check_cd(self, cd:int, unit:str, last_time:str) -> list:
+    def check_cd(self, cd:int, unit:str, last_time:str) -> list:
         '''
         检查cd情况\\
         参数：  
@@ -150,7 +150,7 @@ class Cave():
         if (0 not in list(i['state']  for i in self.__cave) ) or \
             self.__cave == []:
             return {'error':'库内暂无内容。'}
-        check_cd_result = self.__check_cd(self.__data)
+        check_cd_result = self.check_cd(self.__data)
         if not check_cd_result[1]:
             return {'error':f"cave冷却中,恁稍等{check_cd_result[0]}"}
         while True:
@@ -227,7 +227,7 @@ class Cave():
         '''
         设置群冷却时间
             cd_num : 冷却时间的数字
-            cd_unit : 冷却时间的单位('sec','min','')
+            cd_unit : 冷却时间的单位('sec','min','hour')
         '''
         if cd_unit not in ['sec','min','hour']: return {'error':f'无法将“{cd_unit}”识别为有效单位'}
         if not(0 < cd_num < 500): return {'error':'冷却时间需大于0，小于500'}
@@ -255,7 +255,7 @@ class Cave():
             a_id : 添加的账号
         返回结果
         '''
-        if self.__check_wA_id(id=a_id): return {'error':f'此账号已在群“{self.__group_id}”的白名单A中！'}
+        if self.check_wA_id(id=a_id): return {'error':f'此账号已在群“{self.__group_id}”的白名单A中！'}
         else:
             self.__data["groups_dict"][self.__group_id]["white_A"].append(a_id)
             self.__save()
@@ -267,7 +267,7 @@ class Cave():
             r_id : 删除的账号
         返回结果
         '''
-        if self.__check_wA_id(id=r_id): 
+        if self.check_wA_id(id=r_id): 
             self.__data["groups_dict"][self.__group_id]["white_A"].remove(r_id)
             self.__save()
             return {'success':f'成功将账号“{r_id}”移出群“{self.__group_id}”的白名单A！'}
@@ -286,7 +286,7 @@ class Cave():
             a_id : 添加的账号
         返回结果
         '''
-        if self.__check_wB_id(id=a_id): return {'error':f'此账号已在群“{self.__group_id}”的白名单B中！'}
+        if self.check_wB_id(id=a_id): return {'error':f'此账号已在群“{self.__group_id}”的白名单B中！'}
         else:
             self.__data["white_B"].append(a_id)
             self.__save()
@@ -298,7 +298,7 @@ class Cave():
             r_id : 删除的账号
         返回结果
         '''
-        if  self.__check_wB_id(id=r_id):
+        if  self.check_wB_id(id=r_id):
             self.__data["white_B"].remove(r_id)
             self.__save()
             return {'success':f'成功将账号“{r_id}”移出白名单B！'}
@@ -316,7 +316,7 @@ class Cave():
         '''
         通过审核
         '''
-        if self.__check_set_id(id = cave_id, change_state = 0):
+        if self.check_set_id(id = cave_id, change_state = 0):
             for i in self.__data["groups_dict"]:
                 self.__data["groups_dict"][i]["m_list"].append({
                     'cave_id':cave_id,
@@ -329,7 +329,7 @@ class Cave():
         '''
         不通过审核
         '''
-        if self.__check_set_id(id = cave_id, change_state = 2):
+        if self.check_set_id(id = cave_id, change_state = 2):
             for i in self.__data["groups_dict"]:
                 self.__data["groups_dict"][i]["m_list"].append({
                     'cave_id':cave_id,
@@ -357,7 +357,7 @@ class Cave():
             state 2 : 未通过审核
             state 3 : 被-r删除
         '''
-        if self.__check_set_id(id = cave_id, change_state = None):
+        if self.check_set_id(id = cave_id, change_state = None):
             for i in self.__cave:
                 if i['cave_id'] == cave_id:
                     return {'success':i['state']}
