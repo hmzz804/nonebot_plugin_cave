@@ -40,6 +40,7 @@ class Cave():
             with self.cave_path.open("w") as f:
                 initialize_list = []
                 json.dump(initialize_list, f, indent=4)
+            self.__load()
         if self.__group_id not in self.__data['groups_dict']:
             self.__data["groups_dict"][self.__group_id] = {
                 "cd_num": 1,
@@ -49,7 +50,6 @@ class Cave():
                 "white_A":[]
             }
         self.__save()
-        self.__load()
 
     def __save(self):
         """

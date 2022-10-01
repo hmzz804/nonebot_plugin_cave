@@ -17,8 +17,8 @@ from nonebot.typing import T_State
 from .data_source import Cave
 
 env_config = Config(**get_driver().config.dict())
-super_users = env_config.superusers
-white_b_owner = env_config.white_b_owner
+super_users:list = list(env_config.superusers)
+white_b_owner:list[str] = env_config.white_b_owner
 
 cave_matcher = on_command(cmd='cave')
 @cave_matcher.handle()
@@ -61,3 +61,15 @@ async def cave_handle(
         ...
     else: await cave_matcher.finish(message = f"无法将“{args[1]}”识别为有效参数")
 
+async def user_checker(event: Event) -> bool:
+    return event.get_user_id() in white_b_owner
+
+_setcave = on_command(cmd="setcave", rule=user_checker)
+@_setcave.handle()
+async def _setcave_handle(
+    bot: Bot,
+    event: PrivateMessageEvent,
+    state: T_State = State(),
+    args: Message = CommandArg()
+):
+    cave = Cave(group_id=None)
