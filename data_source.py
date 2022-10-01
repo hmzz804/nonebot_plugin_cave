@@ -18,10 +18,6 @@ class Cave():
         self.__group_id: str = group_id
         self.__load()
 
-    def __check_path(self) -> bool:
-        return self.data_path.exists() and self.data_path.is_file() \
-            and self.cave_path.exists() and self.data_path.is_file()
-
     def __load(self):
         """
         读取`cave.json`,`data.json`
@@ -62,6 +58,16 @@ class Cave():
             json.dump(self.__data, f, indent=4)
         with self.cave_path.open('w') as f:
             json.dump(self.__cave, f, indent=4)
+
+    def __check_path(self) -> bool:
+        return self.data_path.exists() and self.data_path.is_file() \
+            and self.cave_path.exists() and self.data_path.is_file()
+
+    def __check_A_id(self, id:str) -> bool:
+        return id in [i for i in self.__data["groups_id"][self.__group_id]["white_A"]]
+
+    def __check_B_id(self, id:str) -> bool:
+        return id in [i for i in self.__data["white_B"]]
 
     def __check_cd(self, cd:int, unit:str, last_time:str) -> list:
         '''
@@ -212,24 +218,39 @@ class Cave():
         self.__save()
         return m_info
 
-    def A_add(self, add_id:str):
-        self.__data["groups_dict"][self.__group_id]["white_A"].append(add_id)
-        self.__save()
+    def A_add(self, a_id:str) -> dict:
+        if self.__check_A_id(id=a_id): return {'error':f'此账号已在群“{self.__group_id}”的白名单A中！'}
+        else:
+            self.__data["groups_dict"][self.__group_id]["white_A"].append(a_id)
+            self.__save()
+            return {'success':f'成功将账号“{a_id}”添加到群“{self.__group_id}”的白名单A中！'}
 
-    def A_remove(self):
-        pass
+    def A_remove(self, r_id:str) -> dict:
+        if self.__check_A_id(id=r_id): 
+            self.__data["groups_dict"][self.__group_id]["white_A"].remove(r_id)
+            self.__save()
+            return {'success':f'成功将账号“{r_id}”移出群“{self.__group_id}”的白名单A！'}
+        else: return {'error':f'账号“{r_id}”不在群“{self.__group_id}”的白名单A中！'}
 
-    def A_get(self):
-        pass
+    def A_get(self) -> dict:
+        return self.__data["groups_dict"][self.__group_id]["white_A"]
 
-    def B_add(self):
-        pass
+    def B_add(self, a_id) -> dict:
+        if self.__check_B_id(id=a_id): return {'error':f'此账号已在群“{self.__group_id}”的白名单B中！'}
+        else:
+            self.__data["white_B"].append(a_id)
+            self.__save()
+            return {'success':f'成功将账号“{a_id}”添加到的白名单B中！'}
 
-    def B_remove(self):
-        pass
+    def B_remove(self, r_id) -> dict:
+        if  self.__check_B_id(id=r_id):
+            self.__data["white_B"].remove(r_id)
+            self.__save()
+            return {'success':f'成功将账号“{r_id}”移出白名单B！'}
+        else: return {'error':f'账号“{r_id}”不在白名单B中'}
 
-    def B_get(self):
-        pass 
+    def B_get(self) -> dict:
+        return self.__data["white_B"]
         
 
 """
