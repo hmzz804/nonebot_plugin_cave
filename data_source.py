@@ -4,6 +4,7 @@ import random
 from pathlib import Path
 from typing import Dict, List
 
+
 class Cave():
     def __init__(self):
         # 路径
@@ -101,16 +102,14 @@ class Cave():
             print(f.read())
         with self.cave_path.open('r') as f:
             print(f.read())
-
         print(self.__data)
         print(self.__cave)
 
     def select(self, group_id:str) -> dict:
         '''
-        ## 抽取cave  
+        抽取cave \\
         参数：  
-        - `group_id` : 群号(string) 
-
+            group_id : 群号(string) 
         返回要发送的消息的部分内容
         '''
         if group_id not in self.__data["groups_dict"]:
@@ -136,17 +135,85 @@ class Cave():
                 self.__save()
                 return send_msg
     
-    def add(self):
+    def add(self, new_content:dict) -> dict:
         '''
-        添加cave
+        添加cave \\
+        参数：
+            new_content : 新添加的内容(dict),
+                需包含字段: `cqcode:str`, `contributor_id:str`, `state:int`
+        返回要发送的消息的部分内容
         '''
-
-    def remove(self):
+        try:
+            cqcode = new_content['cqcode']
+            contributor_id = new_content['contributor_id']
+            state = new_content['state']
+        except Exception as e:
+            raise KeyError('Missing parameter in Cave.add', e)
+        self.__data["total_num"] += 1
+        self.__data["id_num"] += 1
+        
+        #id存储部分，待改
+        cave_id = self.__data['id_num']
+        
+        for i in self.__data["groups_dict"]:
+            self.__data["groups_dict"][i]["m_list"].append({
+                'cave_id':cave_id,
+                'contributor_id':contributor_id,
+                'state':state})
+        self.__cave.append({
+                'cave_id':cave_id,
+                'cqcode':cqcode,
+                'contributor_id':contributor_id,
+                'state':state})
+        self.__save()
+        return {'success':f'添加成功，序号为 {cave_id}，\n来自{contributor_id}'}
+    
+    def remove(self, index:int) -> dict:
         '''
         移除cave
+            index : 序号
         '''
+        for i in self.__cave:
+            if i['cave_id'] == index:
+                self.__cave.remove(i)
+                self.__save()
+                return {'success':'删除成功！'}
+        return {'error':f"索引为“{index}”的内容不存在或已被删除。"}
 
-    def check(self):
+    def get(self, index:int) -> dict:
         '''
         查看cave
+            index : 序号
         '''
+        for i in self.__cave:
+            if i['cave_id'] == index:
+                return i
+        return {'error':f'索引为“{index}”的内容不存在或已被删除。'}
+    
+    def set_cd(self, group_id:str, cd_num:int, cd_unit:str):
+        '''
+        设置群冷却时间
+            group_id : 群号
+            cd_num : 冷却时间的数字
+            cd_unit : 冷却时间的单位('sec','min','')
+        '''
+        if cd_unit not in ['sec','min','hour']: return {'error':f'无法将“{cd_unit}”识别为有效单位'}
+        if not(0 < cd_num < 500): return {'error':'冷却时间需大于0，小于500'}
+        self.__data["groups_dict"][group_id]["cd_num"] = cd_num
+        self.__data["groups_dict"][group_id]["cd_unit"] = cd_unit
+        self.__data["groups_dict"][group_id]["last_time"] = "1000-01-01 00:00:00.114514"
+        return {'success':f'成功修改本群cave冷却时间为{cd_num}{cd_unit}'}
+
+    def m(self, group_id):
+        '''
+        获取新增的
+        '''
+
+
+"""
+state
+    state 0 : 通过审核，可正常获取
+    state 1 : 待审核
+    state 2 : 未通过审核
+    state 3 : 被-r删除
+"""
