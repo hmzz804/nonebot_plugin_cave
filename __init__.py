@@ -14,6 +14,8 @@ from nonebot.permission import SUPERUSER
 from nonebot.plugin import on_command
 from nonebot.typing import T_State
 
+from .data_source import Cave
+
 version = f"""回声洞版本：3.3.0 
 更新状态：已完成
 完成时间：2022/8/12
@@ -27,6 +29,9 @@ version = f"""回声洞版本：3.3.0
 
 CAVE_PATH = r'src/plugins/cave/cave.json'
 DATA_PATH = r'src/plugins/cave/data.json'
+
+cave = Cave(group_id='123')
+cave.print_all()
 
 env_config = Config(**get_driver().config.dict())
 super_users = env_config.superusers
