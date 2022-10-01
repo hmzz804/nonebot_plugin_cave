@@ -166,7 +166,12 @@ class Cave():
         参数：
             new_content : 新添加的内容(dict),
                 需包含字段: `cqcode:str`, `contributor_id:str`, `state:int`
-        返回要发送的消息的部分内容
+        返回要发送的消息的部分内容\\
+        state值的意义：
+            state 0 : 通过审核，可正常获取
+            state 1 : 待审核
+            state 2 : 未通过审核
+            state 3 : 被-r删除
         '''
         try:
             cqcode = new_content['cqcode']
@@ -190,7 +195,11 @@ class Cave():
                 'contributor_id':contributor_id,
                 'state':state})
         self.__save()
-        return {'success':f'添加成功，序号为 {cave_id}，\n来自{contributor_id}'}
+        return {
+            'success':f'添加成功，序号为 {cave_id}，\n来自{contributor_id}',
+            'white_B':self.__data['white_B'],
+            'cave_id':cave_id
+        }
     
     def remove(self, index:int) -> dict:
         '''

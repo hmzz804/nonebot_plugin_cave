@@ -44,7 +44,23 @@ async def cave_handle(
     args = str(args).strip()
     if not (len(args) >= 2 and args[0] == "-") : await cave_matcher.finish(message = "参数格式有误!")
     if args[1] == "a":
-        ...
+        cqcode = args.replace('-a', '', 1).strip()
+        msg = cave.add(new_content={
+            'cqcode':cqcode, 
+            'contributor_id':event.get_user_id(),
+            'state':1})
+        for i in msg['white_B']:
+            await bot.send_msg(
+                message_type="private",
+                user_id=i,
+                message=f"待审核回声洞（{msg['cave_id']}）"
+                + f"\n"
+                + Message(cqcode)
+                + f"\n——{(await bot.get_stranger_info(user_id = event.get_user_id()))['nickname']}"
+                + f"（{event.get_user_id()}）"
+            )
+        await cave_matcher.finish(message = MessageSegment(msg['success']) )
+    
     elif args[1] == "r":
         ...
     elif args[1] == "g":
