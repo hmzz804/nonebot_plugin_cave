@@ -2,7 +2,6 @@ import datetime
 import json
 import random
 from pathlib import Path
-from tabnanny import check
 from typing import Dict, List
 
 class Cave():
@@ -177,8 +176,7 @@ class Cave():
             cqcode = new_content['cqcode']
             contributor_id = new_content['contributor_id']
             state = new_content['state']
-        except Exception as e:
-            raise KeyError('Missing parameter in Cave.add', e)
+        except Exception as e: raise KeyError('Missing parameter in Cave.add', e)
         self.__data["total_num"] += 1
         self.__data["id_num"] += 1
         
@@ -186,9 +184,10 @@ class Cave():
         cave_id = self.__data['id_num']
         
         for i in self.__data["groups_dict"]:
-            self.__data["groups_dict"][i]["m_list"].append({
+            self.__data["groups_dict"][i]["m_list"]:list.append({
                 'cave_id':cave_id,
-                'state':state})
+                'state':state,
+                'time':str(datetime.datetime.now())})
         self.__cave.append({
                 'cave_id':cave_id,
                 'cqcode':cqcode,
@@ -200,7 +199,7 @@ class Cave():
             'white_B':self.__data['white_B'],
             'cave_id':cave_id
         }
-    
+
     def remove(self, index:int) -> dict:
         '''
         移除cave
@@ -211,6 +210,10 @@ class Cave():
                 self.__cave.remove(i)
                 self.__save()
                 return {'success':'删除成功！'}
+        self.__data["groups_dict"][self.__group_id]["m_list"]:list.append({
+            'cave_id':index,
+            'state':3,
+            'time':str(datetime.datetime.now())})
         return {'error':f"索引为“{index}”的内容不存在或已被删除。"}
 
     def get_cave(self, index:int) -> dict:
@@ -223,7 +226,7 @@ class Cave():
                 return i
         return {'error':f'索引为“{index}”的内容不存在或已被删除。'}
     
-    def set_cd(self, cd_num:int, cd_unit:str):
+    def set_cd(self, cd_num:int, cd_unit:str) -> dict:
         '''
         设置群冷却时间
             cd_num : 冷却时间的数字
@@ -242,7 +245,7 @@ class Cave():
         获取新增的投稿的审核情况，时间截至到上次获取\\
         返回信息列表，并在文件中清除
         '''
-        m_info = self.__data["groups_dict"][self.__group_id]["m_list"]
+        m_info:list = self.__data["groups_dict"][self.__group_id]["m_list"]
         if m_info == [] : return {'error':'暂无新增的回声洞处理'}
         self.__data["groups_dict"][self.__group_id]["m_list"]:list.clear()
         self.__save()
@@ -318,9 +321,10 @@ class Cave():
         '''
         if self.check_set_id(id = cave_id, change_state = 0):
             for i in self.__data["groups_dict"]:
-                self.__data["groups_dict"][i]["m_list"].append({
+                self.__data["groups_dict"][i]["m_list"]:list.append({
                     'cave_id':cave_id,
-                    'state':0})
+                    'state':0,
+                    'time':str(datetime.datetime.now())})
             self.__save()
             return {'success':f'操作成功，序号:({cave_id})通过审核，加入回声洞。'}
         else: return {'error':'此序号不存在或已被删除或已被审核！'}
@@ -331,9 +335,10 @@ class Cave():
         '''
         if self.check_set_id(id = cave_id, change_state = 2):
             for i in self.__data["groups_dict"]:
-                self.__data["groups_dict"][i]["m_list"].append({
+                self.__data["groups_dict"][i]["m_list"]:list.append({
                     'cave_id':cave_id,
-                    'state':2})
+                    'state':2,
+                    'time':str(datetime.datetime.now())})
             self.__save()
             return {'success':f'操作成功，序号:({cave_id})通过不审核，已将其删除。'}
         else: return {'error':'此序号不存在或已被删除或已被审核！'}
