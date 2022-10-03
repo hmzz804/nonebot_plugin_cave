@@ -591,7 +591,7 @@ async def _setcave_handle(
                     pass
                 
                 else:
-                    await _setcave.finish(message=f"无法将“{args[1]}识别为有效参数")
+                    await _setcave.finish(message = f"无法将“{args[1]}识别为有效参数")
             else:
                 await _setcave.finish(message="参数格式有误")
         else:

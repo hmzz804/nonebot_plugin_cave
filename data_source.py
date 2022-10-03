@@ -362,9 +362,15 @@ class Cave():
             state 2 : 未通过审核
             state 3 : 被-r删除
         '''
+        state = {
+            0 : '通过审核，可正常获取。',
+            1 : '待审核。',
+            2 : '未通过审核！',
+            3 : '已被删除！'
+        }
         if self.check_set_id(id = cave_id, change_state = None):
             for i in self.__cave:
                 if i['cave_id'] == cave_id:
-                    return {'success':i['state']}
+                    return {'success':f"序号“{cave_id}”的状态:（" + str(cave_id) + "）\n" + state[int(i['state'])]}
         else: return {'error':'此序号不存在或已被删除或已被审核'}
 

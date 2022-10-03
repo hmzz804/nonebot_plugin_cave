@@ -240,4 +240,55 @@ async def setcave_handle(
     args: Message = CommandArg()
 ):
     cave = Cave(group_id=None)
-    if not args: await setcave
+    if not args: await setcave.finish(message = "参数呢？")
+    args:str = str(args).strip()
+    if not(len(args) >= 2 and args[0] =="-"): await setcave.finish(message = "参数格式有误")
+    if args[1] not in ['t','f','l','e']: await setcave.finish(message = f"无法将“{args[1]}识别为有效参数")
+    if args[1] == 't':
+        args = args.replace("-t", "", 1).strip()
+        try: t_id = int(args)
+        except: await setcave.finish(message = f"无法将“{args}”识别为有效数字！")
+        t_msg = cave.set_t(cave_id = t_id)
+        if 'error' in t_msg: await setcave.finish(message = t_msg['error'])
+        elif 'success' in t_msg: await setcave.finish(message = t_msg['success'])
+        else: logger.error("There is something wrong with Cave.set_t()")
+
+    if args[1] == 'f':
+        args = args.replace("-f", "", 1).strip()
+        try: f_id = int(args)
+        except: await setcave.finish(message = f"无法将“{args}”识别为有效数字！")
+        f_msg = cave.set_f(cave_id = f_id)
+        if 'error' in f_msg: await setcave.finish(message = f_msg['error'])
+        elif 'success' in f_msg: await setcave.finish(message = f_msg['success'])
+        else: logger.error("There is something wrong with Cave.set_f()")
+
+    if args[1] == 'l':
+        args = args.replace("-l", "", 1).strip()
+        if args: await setcave.finish(message = f"多余的参数“{args}”")
+        l_msg = cave.set_l()
+        if l_msg == []: await setcave.finish(message = "暂无待审核的投稿。")
+        forward_msg = []
+        for i in l_msg:
+            every_msg = {
+                "type": "node",
+                "data":{
+                    "name": "投稿人",
+                    "uin": event.self_id,
+                    "content": f'待审核回声洞（{i["cave_id"]}）：\n'
+                    + i["cqcode"]
+                    + f"\n——{(await bot.get_stranger_info(user_id=i['contributor_id']))['nickname']}（{i['contributor_id']}）"
+                    + f"（{i['contributor_id']}）"
+                }
+            }
+            forward_msg.append(every_msg)
+        await bot.send_private_forward_msg(user_id = event.get_user_id(),messages = forward_msg)
+        await setcave.finish()
+
+    if args[1] == 'e':
+        args = args.replace("-e", "", 1).strip()
+        try: e_id = int(args)
+        except: await setcave.finish(message = f"无法将“{args}”识别为有效数字！")
+        cave.set_e(cave_id=e_id)
+        if 'error' in f_msg: await setcave.finish(message = f_msg['error'])
+        elif 'success' in f_msg: await setcave.finish(message = f_msg['success'])
+        else: logger.error("There is something wrong with Cave.set_f()")
