@@ -1,12 +1,18 @@
+import datetime
+from email import message
 import json
+import os
+import random
+from time import time
 
 from nonebot import Config, get_driver
 from nonebot.adapters import Bot
 from nonebot.adapters.onebot.v11 import (Event, GroupMessageEvent,
                                          PrivateMessageEvent)
-from nonebot.adapters.onebot.v11.message import Message
+from nonebot.adapters.onebot.v11.message import Message, MessageSegment
 from nonebot.log import logger
-from nonebot.params import CommandArg, CommandStart, State
+from nonebot.params import CommandArg, CommandStart, EventMessage, State
+from nonebot.permission import SUPERUSER
 from nonebot.plugin import on_command
 from nonebot.typing import T_State
 
@@ -36,14 +42,13 @@ async def cave_handle(
         if 'error' in s_result:
             await cave_matcher.finish(message = s_result['error'])
         else: await cave_matcher.finish(
-            message = f"回声洞 ——（{msg['cave_id']}）\n"
+            message = f"回声洞 ——（{s_result['cave_id']}）\n"
             + Message(s_result["cqcode"])
             + f"\n——"
             + (await bot.get_stranger_info(user_id=s_result['contributor_id']))["nickname"]
         )
     args = str(args).strip()
     if not (len(args) >= 2 and args[0] == "-") : await cave_matcher.finish(message = "参数格式有误!")
-    if args[1] not in ['a','r','g','c','m','h','v','w']: await cave_matcher.finish(message = f"无法将“{args[1]}”识别为有效参数！")
     if args[1] == "a":
         cqcode:str = args.replace('-a', '', 1).strip()
         a_result = cave.add(new_content={
@@ -151,7 +156,6 @@ async def cave_handle(
             await cave_matcher.finish(message = "无-w权限")
         args:str = args.replace('-w', '', 1).strip()
         if len(args) < 2: await cave_matcher.finish(message = '请检查参数！')
-        if args[0] not in ['a','A','b','B']: await cave_matcher.finish(message = f"无法将“{args[0]}”识别为有效子命令！")
         if args[0] in ["a","A"]:
             if event.get_user_id() not in super_users: await cave_matcher.finish(message = "无cave-wA权限!")
             if args[1] == "a":
@@ -223,17 +227,18 @@ async def cave_handle(
                 if len(args) > 2: await cave_matcher.finish(message = f'多余的参数{args[2:]}。')
                 white_B:list = cave.wB_get()
                 # msg = str(f"\n".join(white_B))
-                wBg_msg = ""
-                for i in white_B: wBg_msg += (await bot.get_stranger_info(user_id = i))["nickname"] + f"（{str(i)}）\n" 
-                await cave_matcher.finish(message = f"群（{event.group_id}）的白名单B（以下成员务必添加bot为好友）：" + wBg_msg)
-            else: await cave_matcher.finish(message = f"无法将“{args[1]}”识别为有效子命令")
+                send_msg = ""
+                for i in white_B: send_msg += (await bot.get_stranger_info(user_id = i))["nickname"] + f"（{str(i)}）\n" 
+                await cave_matcher.finish(message = f"群（{event.group_id}）的白名单B（以下成员务必添加bot为好友）：" + send_msg)
+        else: await cave_matcher.finish(message = f"无法将“{args[0]}”识别为有效子命令！")
+    else: await cave_matcher.finish(message = f"无法将“{args[1]}”识别为有效参数！")
 
 async def user_checker(event: Event) -> bool:
     return event.get_user_id() in white_b_owner
 
 setcave = on_command(cmd="setcave", rule=user_checker)
 @setcave.handle()
-async def setcave_handle(
+async def _setcave_handle(
     bot: Bot,
     event: PrivateMessageEvent,
     # state: T_State = State(),

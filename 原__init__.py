@@ -14,10 +14,10 @@ from nonebot.permission import SUPERUSER
 from nonebot.plugin import on_command
 from nonebot.typing import T_State
 
-from .data_source import Cave
+# from .data_source import Cave
 
-cave = Cave()
-cave.print_all()
+# cave = Cave()
+# cave.print_all()
 
 version = f"""
 """
