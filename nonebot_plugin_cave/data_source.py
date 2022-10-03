@@ -130,7 +130,7 @@ class Cave():
             else:
                 return [result,False]
 
-    def print_all(self):
+    def print_all(self) -> None:
         '''
         打印读取`data文件`,`cave文件`
         '''
