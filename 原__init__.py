@@ -8,16 +8,14 @@ from nonebot.adapters import Bot
 from nonebot.adapters.onebot.v11 import (Event, GroupMessageEvent,
                                          PrivateMessageEvent)
 from nonebot.adapters.onebot.v11.message import Message, MessageSegment
-from nonebot.log import logger
 from nonebot.params import CommandArg, CommandStart, EventMessage, State
-from nonebot.permission import SUPERUSER
 from nonebot.plugin import on_command
 from nonebot.typing import T_State
 
-# from .data_source import Cave
+from .nonebot_plugin_cave.data_source import Cave
 
-# cave = Cave()
-# cave.print_all()
+cave = Cave()
+cave.print_all()
 
 version = f"""
 """

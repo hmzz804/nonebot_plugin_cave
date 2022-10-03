@@ -1,9 +1,4 @@
-import datetime
-from email import message
 import json
-import os
-import random
-from time import time
 
 from nonebot import Config, get_driver
 from nonebot.adapters import Bot
@@ -12,7 +7,6 @@ from nonebot.adapters.onebot.v11 import (Event, GroupMessageEvent,
 from nonebot.adapters.onebot.v11.message import Message, MessageSegment
 from nonebot.log import logger
 from nonebot.params import CommandArg, CommandStart, EventMessage, State
-from nonebot.permission import SUPERUSER
 from nonebot.plugin import on_command
 from nonebot.typing import T_State
 

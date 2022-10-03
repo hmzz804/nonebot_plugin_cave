@@ -367,4 +367,3 @@ class Cave():
                 if i['cave_id'] == cave_id:
                     return {'success':i['state']}
         else: return {'error':'此序号不存在或已被删除或已被审核'}
-
