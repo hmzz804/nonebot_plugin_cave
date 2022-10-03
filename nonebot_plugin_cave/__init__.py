@@ -227,9 +227,9 @@ async def cave_handle(
                 if len(args) > 2: await cave_matcher.finish(message = f'多余的参数{args[2:]}。')
                 white_B:list = cave.wB_get()
                 # msg = str(f"\n".join(white_B))
-                send_msg = ""
-                for i in white_B: send_msg += (await bot.get_stranger_info(user_id = i))["nickname"] + f"（{str(i)}）\n" 
-                await cave_matcher.finish(message = f"群（{event.group_id}）的白名单B（以下成员务必添加bot为好友）：" + send_msg)
+                wBg_msg = ""
+                for i in white_B: wBg_msg += (await bot.get_stranger_info(user_id = i))["nickname"] + f"（{str(i)}）\n" 
+                await cave_matcher.finish(message = f"群（{event.group_id}）的白名单B（以下成员务必添加bot为好友）：" + wBg_msg)
         else: await cave_matcher.finish(message = f"无法将“{args[0]}”识别为有效子命令！")
     else: await cave_matcher.finish(message = f"无法将“{args[1]}”识别为有效参数！")
 
