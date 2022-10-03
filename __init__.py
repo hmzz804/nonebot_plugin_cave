@@ -226,17 +226,18 @@ async def cave_handle(
                 for i in white_B: send_msg += (await bot.get_stranger_info(user_id = i))["nickname"] + f"（{str(i)}）\n" 
                 await cave_matcher.finish(message = f"群（{event.group_id}）的白名单B（以下成员务必添加bot为好友）：" + send_msg)
             else: await cave_matcher.finish(message = f"无法将“{args[1]}”识别为有效子命令")
-    
+
 
 async def user_checker(event: Event) -> bool:
     return event.get_user_id() in white_b_owner
 
-_setcave = on_command(cmd="setcave", rule=user_checker)
-@_setcave.handle()
-async def _setcave_handle(
+setcave = on_command(cmd="setcave", rule=user_checker)
+@setcave.handle()
+async def setcave_handle(
     bot: Bot,
     event: PrivateMessageEvent,
     state: T_State = State(),
     args: Message = CommandArg()
 ):
     cave = Cave(group_id=None)
+    if not args: await setcave

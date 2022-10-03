@@ -19,15 +19,7 @@ from .data_source import Cave
 cave = Cave()
 cave.print_all()
 
-version = f"""回声洞版本：3.3.0 
-更新状态：已完成
-完成时间：2022/8/12
-作者：HmZz
-更新日志：
-  修复：修复了-m分群显示错误的bug；修复了当此群未进行.cave-c初始化时使用其他指令引发的错误；
-  更改：将白名单A分群存储。
-  优化：-wAg，-wBgQQ号前面加昵称；.cave-w支持使用@对白名单进行更改。
-  新增：.cave-v获取当前cave版本，更新时间，更新日志。
+version = f"""
 """
 
 CAVE_PATH = r'src/plugins/cave/cave.json'

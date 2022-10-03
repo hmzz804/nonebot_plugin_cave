@@ -80,7 +80,7 @@ class Cave():
 
     def check_set_id(self, id:int, change_state:int) -> bool:
         '''
-        检查要操作的id的状态,并将传入的id的state改为change_state\\
+        检查要操作的cave_id的状态,并将传入的id的state改为change_state\\
         state值的意义：
             state 0 : 通过审核，可正常获取
             state 1 : 待审核
