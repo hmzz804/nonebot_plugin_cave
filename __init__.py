@@ -1,18 +1,12 @@
-import datetime
-from email import message
 import json
-import os
-import random
-from time import time
 
 from nonebot import Config, get_driver
 from nonebot.adapters import Bot
 from nonebot.adapters.onebot.v11 import (Event, GroupMessageEvent,
                                          PrivateMessageEvent)
-from nonebot.adapters.onebot.v11.message import Message, MessageSegment
+from nonebot.adapters.onebot.v11.message import Message
 from nonebot.log import logger
-from nonebot.params import CommandArg, CommandStart, EventMessage, State
-from nonebot.permission import SUPERUSER
+from nonebot.params import CommandArg, CommandStart, State
 from nonebot.plugin import on_command
 from nonebot.typing import T_State
 
@@ -226,7 +220,6 @@ async def cave_handle(
                 for i in white_B: send_msg += (await bot.get_stranger_info(user_id = i))["nickname"] + f"（{str(i)}）\n" 
                 await cave_matcher.finish(message = f"群（{event.group_id}）的白名单B（以下成员务必添加bot为好友）：" + send_msg)
             else: await cave_matcher.finish(message = f"无法将“{args[1]}”识别为有效子命令")
-
 
 async def user_checker(event: Event) -> bool:
     return event.get_user_id() in white_b_owner
