@@ -197,7 +197,7 @@ async def cave_handle(
                     wBa_msg:dict = json.loads(event.json())['message']
                     for i in wBa_msg:
                         if i["type"] == "at":
-                            wBa_id, wBa_at:bool = i["data"]["qq"], True
+                            wBa_id, wBa_at = i["data"]["qq"], True
                     if not wBa_at: await cave_matcher.finish(message = f"无法将“{args[2:]}”识别为有效数字或艾特!")
                 wBa_id = str(wBa_id)
                 wBa_result = cave.wB_add(a_id = wBa_id)
