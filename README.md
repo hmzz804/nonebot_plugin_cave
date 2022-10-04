@@ -1,6 +1,6 @@
 # nonebot_plugin_cave
 
-适用于 Nonebot2 的 cave（回声洞）插件  
+适用于 [Nonebot2](https://nb2.baka.icu/) 的 cave（回声洞）插件  
 
 ## 使用方法:  
 群回声洞插件，各群友投稿加入回声洞库，可以随机抽取其中内容。
