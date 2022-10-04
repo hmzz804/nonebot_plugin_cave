@@ -229,8 +229,6 @@ async def cave_handle(
 async def user_checker(event: Event) -> bool:
     return event.get_user_id() in white_b_owner
 
-
-
 setcave = on_command(cmd="setcave", rule=user_checker)
 @setcave.handle()
 async def setcave_handle(
