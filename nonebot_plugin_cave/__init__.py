@@ -226,7 +226,6 @@ async def cave_handle(
                 for i in white_B: wBg_msg += (await bot.get_stranger_info(user_id = i))["nickname"] + f"（{str(i)}）\n" 
                 await cave_matcher.finish(message = f"群（{event.group_id}）的白名单B（以下成员务必添加bot为好友）：" + wBg_msg)
 
-
 async def user_checker(event: Event) -> bool:
     return event.get_user_id() in white_b_owner
 
