@@ -231,7 +231,7 @@ async def user_checker(event: Event) -> bool:
 
 setcave = on_command(cmd="setcave", rule=user_checker)
 @setcave.handle()
-async def _setcave_handle(
+async def setcave_handle(
     bot: Bot,
     event: PrivateMessageEvent,
     # state: T_State = State(),
