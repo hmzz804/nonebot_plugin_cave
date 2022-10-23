@@ -455,9 +455,9 @@ async def _cave_handle(
         #else:
             #await _cave.finish(message = "参数格式有误（1）")
 
-_setcave = on_command(cmd="setcave")
-@_setcave.handle()
-async def _setcave_handle(
+setcave = on_command(cmd="setcave")
+@setcave.handle()
+async def setcave_handle(
     bot: Bot,
     event: PrivateMessageEvent,
     args: Message = CommandArg()
@@ -474,7 +474,7 @@ async def _setcave_handle(
                         try:
                             args = int(args)
                         except:
-                            await _setcave.finish(message = f"无法将“{args}”识别为有效数字")
+                            await setcave.finish(message = f"无法将“{args}”识别为有效数字")
                         t_code = int(4)
                         for i in cave_list:
                             if i["cave_id"] == args:
@@ -495,19 +495,19 @@ async def _setcave_handle(
                         write_in(path = CAVE_PATH, new_content = cave_list)
                         write_in(path = DATA_PATH, new_content = data_dict)
                         if t_code == 0:
-                            await _setcave.finish(message = f"（{args}）已被其他审核员通过审核。")
+                            await setcave.finish(message = f"（{args}）已被其他审核员通过审核。")
                         elif t_code == 1:
-                            await _setcave.finish(message = f"操作成功，序号:({args})通过审核，加入回声洞。")
+                            await setcave.finish(message = f"操作成功，序号:({args})通过审核，加入回声洞。")
                         elif t_code == 2:
-                            await _setcave.finish(message = f"（{args}）已被其他审核员不通过审核。")
+                            await setcave.finish(message = f"（{args}）已被其他审核员不通过审核。")
                         elif t_code == 3:
-                            await _setcave.finish(message = f"（{args}）已被删除。")
+                            await setcave.finish(message = f"（{args}）已被删除。")
                         elif t_code == 4:
-                            await _setcave.finish(message = f"不存在的序号：{args}")
+                            await setcave.finish(message = f"不存在的序号：{args}")
                         else:
-                            await _setcave.finish(message = "发生了未知错误，请联系作者反馈。")
+                            await setcave.finish(message = "发生了未知错误，请联系作者反馈。")
                     else:
-                        await _setcave.finish(message = "参数呢？")
+                        await setcave.finish(message = "参数呢？")
 
                 elif args[1] == "f":
                     args = args.replace("-f", "", 1).strip()
@@ -515,7 +515,7 @@ async def _setcave_handle(
                         try:
                             args = int(args)
                         except:
-                            await _setcave.finish(message = f"无法将“{args}”识别为有效数字。")
+                            await setcave.finish(message = f"无法将“{args}”识别为有效数字。")
                         f_code = int(4)
                         for i in cave_list:
                             if i["cave_id"] == args:
@@ -536,19 +536,19 @@ async def _setcave_handle(
                         write_in(path = CAVE_PATH, new_content = cave_list)
                         write_in(path = DATA_PATH, new_content = data_dict)
                         if f_code == 0:
-                            await _setcave.finish(message = f"（{args}）已被其他审核员通过审核。")
+                            await setcave.finish(message = f"（{args}）已被其他审核员通过审核。")
                         elif f_code == 1:
-                            await _setcave.finish(message = f"操作成功，序号:({args})不通过审核。")
+                            await setcave.finish(message = f"操作成功，序号:({args})不通过审核。")
                         elif f_code == 2:
-                            await _setcave.finish(message = f"（{args}）已被其他审核员不通过审核。")
+                            await setcave.finish(message = f"（{args}）已被其他审核员不通过审核。")
                         elif f_code == 3:
-                            await _setcave.finish(message = f"（{args}）已被删除。")
+                            await setcave.finish(message = f"（{args}）已被删除。")
                         elif f_code == 4:
-                            await _setcave.finish(message = f"不存在的序号：{args}")
+                            await setcave.finish(message = f"不存在的序号：{args}")
                         else:
-                            await _setcave.finish(message = f"发生了未知错误，请联系作者反馈")
+                            await setcave.finish(message = f"发生了未知错误，请联系作者反馈")
                     else:
-                        await _setcave.finish(message = "参数呢")
+                        await setcave.finish(message = "参数呢")
                 elif args[1] == "l":
                     args = args.replace("-l", "", 1).strip()
                     if not args:
@@ -570,20 +570,20 @@ async def _setcave_handle(
                                 }
                                 forward_msg.append(every_msg)
                         await bot.send_private_forward_msg(user_id=event.user_id,messages=forward_msg)
-                        await _setcave.finish()
+                        await setcave.finish()
                     else:
-                        await _setcave.finish(message=f"多余的参数“{args}”")
+                        await setcave.finish(message=f"多余的参数“{args}”")
 
                 elif args[1] == "e":
                     pass
                 
                 else:
-                    await _setcave.finish(message = f"无法将“{args[1]}识别为有效参数")
+                    await setcave.finish(message = f"无法将“{args[1]}识别为有效参数")
             else:
-                await _setcave.finish(message="参数格式有误")
+                await setcave.finish(message="参数格式有误")
         else:
-            await _setcave.finish(message="参数呢")
+            await setcave.finish(message="参数呢")
     else:
-        await _setcave.finish(message = "无权限")
+        await setcave.finish(message = "无权限")
 
 
