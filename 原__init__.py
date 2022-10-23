@@ -81,8 +81,6 @@ _cave = on_command(cmd='cave')
 async def _cave_handle(
     bot: Bot,
     event: GroupMessageEvent,
-    # state: T_State = State(),
-    # command = CommandStart(),
     args: Message = CommandArg()
 ):
     cave_list = read(path=CAVE_PATH)
@@ -462,7 +460,6 @@ _setcave = on_command(cmd="setcave")
 async def _setcave_handle(
     bot: Bot,
     event: PrivateMessageEvent,
-    # state: T_State = State(),
     args: Message = CommandArg()
 ):
     cave_list = read(path = CAVE_PATH)
