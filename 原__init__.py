@@ -5,17 +5,10 @@ import random
 
 from nonebot import Config, get_driver
 from nonebot.adapters import Bot
-from nonebot.adapters.onebot.v11 import (Event, GroupMessageEvent,
-                                         PrivateMessageEvent)
-from nonebot.adapters.onebot.v11.message import Message, MessageSegment
-from nonebot.params import CommandArg, CommandStart, EventMessage, State
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, PrivateMessageEvent
+from nonebot.adapters.onebot.v11.message import Message
+from nonebot.params import CommandArg
 from nonebot.plugin import on_command
-from nonebot.typing import T_State
-
-from .nonebot_plugin_cave.data_source import Cave
-
-cave = Cave()
-cave.print_all()
 
 version = f"""
 """
@@ -88,8 +81,8 @@ _cave = on_command(cmd='cave')
 async def _cave_handle(
     bot: Bot,
     event: GroupMessageEvent,
-    state: T_State = State(),
-    command = CommandStart(),
+    # state: T_State = State(),
+    # command = CommandStart(),
     args: Message = CommandArg()
 ):
     cave_list = read(path=CAVE_PATH)
@@ -469,7 +462,7 @@ _setcave = on_command(cmd="setcave")
 async def _setcave_handle(
     bot: Bot,
     event: PrivateMessageEvent,
-    state: T_State = State(),
+    # state: T_State = State(),
     args: Message = CommandArg()
 ):
     cave_list = read(path = CAVE_PATH)
