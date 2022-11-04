@@ -4,6 +4,12 @@ import random
 from pathlib import Path
 from typing import Dict, List
 
+from nonebot import Config, get_driver
+
+env_config = Config(**get_driver().config.dict())
+super_users:list = list(env_config.superusers)
+white_b_owner:list = env_config.white_b_owner
+
 class Cave():
     def __init__(self, group_id:str) -> None:
         # 路径
@@ -31,7 +37,7 @@ class Cave():
             with self.data_path.open("w") as f:
                 initialize_dict = {
                     "groups_dict":{},
-                    "white_B": [],
+                    "white_B":list(white_b_owner),
                     "total_num": 0,
                     "id_num": 0
                 }
@@ -40,7 +46,7 @@ class Cave():
                 initialize_list = []
                 json.dump(initialize_list, f, indent=4)
             self.load()
-        if self.group_id not in self.data['groups_dict']:
+        if (self.group_id not in self.data['groups_dict']) and self.group_id:
             self.data["groups_dict"][self.group_id] = {
                 "cd_num": 1,
                 "cd_unit": "sec",
@@ -50,7 +56,7 @@ class Cave():
             }
         self.save()
 
-    def save(self):
+    def save(self) -> None:
         """
         保存`cave.json`,`data.json`
         """
@@ -70,7 +76,7 @@ class Cave():
         '''
         检查白名单A中是否有指定id
         '''
-        return id in [i for i in self.data["groups_id"][self.group_id]["white_A"]]
+        return id in [i for i in self.data["groups_dict"][self.group_id]["white_A"]]
 
     def check_wB_id(self, id:str) -> bool:
         '''
@@ -89,9 +95,10 @@ class Cave():
         '''
         for i in self.cave:
             if i['cave_id'] == id:
+                result = (i['state'] == 1)
                 if change_state != None : i['state'] = change_state
                 self.save()
-                return i['state'] == 1
+                return result
         return False
 
     def check_cd(self, cd:int, unit:str, last_time:str) -> list:
@@ -149,7 +156,9 @@ class Cave():
         if (0 not in list(i['state']  for i in self.cave) ) or \
             self.cave == []:
             return {'error':'库内暂无内容。'}
-        check_cd_result = self.check_cd(self.data)
+        check_cd_result = self.check_cd(cd=self.data["groups_dict"][self.group_id]["cd_num"],
+                                        unit=self.data["groups_dict"][self.group_id]["cd_unit"],
+                                        last_time=self.data["groups_dict"][self.group_id]["last_time"])
         if not check_cd_result[1]:
             return {'error':f"cave冷却中,恁稍等{check_cd_result[0]}"}
         while True:
@@ -240,14 +249,14 @@ class Cave():
         self.save()
         return {'success':f'成功修改本群cave冷却时间为{cd_num}{cd_unit}'}
 
-    def get_m(self) -> dict:
+    def get_m(self) -> list:
         '''
         获取新增的投稿的审核情况，时间截至到上次获取\\
         返回信息列表，并在文件中清除
         '''
-        m_info:list = self.data["groups_dict"][self.group_id]["m_list"]
+        m_info = self.data["groups_dict"][self.group_id]["m_list"]
         if m_info == [] : return {'error':'暂无新增的回声洞处理'}
-        self.data["groups_dict"][self.group_id]["m_list"]:list.clear()
+        self.data["groups_dict"][self.group_id]["m_list"] = []
         self.save()
         return m_info
 
@@ -314,16 +323,16 @@ class Cave():
         return self.data["white_B"]
 
 
-
     def set_t(self, cave_id:int) -> dict:
         '''
         通过审核
         '''
-        if self.check_set_id(id = cave_id, change_state = 0):
+        if self.check_set_id(id=cave_id, change_state=0):
             for i in self.data["groups_dict"]:
-                self.data["groups_dict"][i]["m_list"]:list.append({
+                self.data["groups_dict"][i]["m_list"].append({
                     'cave_id':cave_id,
                     'state':0,
+                    'contributor_id':self.get_cave(index=cave_id)['contributor_id'],
                     'time':str(datetime.datetime.now())})
             self.save()
             return {'success':f'操作成功，序号:({cave_id})通过审核，加入回声洞。'}
@@ -333,17 +342,18 @@ class Cave():
         '''
         不通过审核
         '''
-        if self.check_set_id(id = cave_id, change_state = 2):
+        if self.check_set_id(id=cave_id, change_state=2):
             for i in self.data["groups_dict"]:
-                self.data["groups_dict"][i]["m_list"]:list.append({
+                self.data["groups_dict"][i]["m_list"].append({
                     'cave_id':cave_id,
                     'state':2,
+                    'contributor_id':self.get_cave(index=cave_id)['contributor_id'],
                     'time':str(datetime.datetime.now())})
             self.save()
             return {'success':f'操作成功，序号:({cave_id})通过不审核，已将其删除。'}
         else: return {'error':'此序号不存在或已被删除或已被审核！'}
 
-    def set_l(self) -> list:
+    def get_l(self) -> list:
         '''
         返回当前未处理的审核序号列表
         '''
@@ -353,7 +363,7 @@ class Cave():
                 msg.append(i)
         return msg
 
-    def set_e(self, cave_id:int) -> dict:
+    def get_e(self, cave_id:int) -> dict:
         '''
         返回此id的审核情况\\
         state值的意义：

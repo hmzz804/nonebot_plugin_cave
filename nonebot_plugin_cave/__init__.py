@@ -4,11 +4,10 @@ from nonebot import Config, get_driver
 from nonebot.adapters import Bot
 from nonebot.adapters.onebot.v11 import (Event, GroupMessageEvent,
                                          PrivateMessageEvent)
-from nonebot.adapters.onebot.v11.message import Message, MessageSegment
+from nonebot.adapters.onebot.v11.message import Message
 from nonebot.log import logger
-from nonebot.params import CommandArg, CommandStart, EventMessage, State
+from nonebot.params import CommandArg
 from nonebot.plugin import on_command
-from nonebot.typing import T_State
 
 from .data_source import Cave
 
@@ -26,8 +25,6 @@ cave_matcher = on_command(cmd='cave')
 async def cave_handle(
     bot: Bot,
     event: GroupMessageEvent,
-    # state: T_State = State(),
-    # command = CommandStart(),
     args: Message = CommandArg()
 ):
     cave = Cave(group_id = str(event.group_id))
@@ -97,8 +94,8 @@ async def cave_handle(
         try: cd_num = int(args_list[0])
         except: await cave_matcher.finish(message = f"无法将“{args_list[0]}”识别为有效数字")
         if not (0 < cd_num < 500): await cave_matcher.finish(message = "冷却时间需大于0，小于500") 
-        if args[1] not in ["sec","min","hour"]: await cave_matcher.finish(message = f"无法将“{args_list[1]}”识别为有效单位")
-        c_result = cave.set_cd(cd_num = cd_num, cd_unit = args[1])
+        if args_list[1] not in ["sec","min","hour"]: await cave_matcher.finish(message = f"无法将“{args_list[1]}”识别为有效单位")
+        c_result = cave.set_cd(cd_num = cd_num, cd_unit = args_list[1])
         if 'error' in c_result: await cave_matcher.finish(message = c_result['error'])
         elif 'success' in c_result: await cave_matcher.finish(message = c_result['success'])
         else: logger.error("There is something wrong with Cave.set_cd()")
@@ -109,11 +106,12 @@ async def cave_handle(
         m_result = cave.get_m()
         if 'error' in m_result: await cave_matcher.finish(message = m_result['error'])
         m_forward_msg = []
+        print(m_result)
         for i in m_result:
-            if i["state"] == 0: state_info = f"时间：{m_result['time']}。通过审核，已加入回声洞。"
-            elif i["state"] == 1: state_info = f"时间：{m_result['time']}。收到投稿，等待审核。"
-            elif i["state"] == 2: state_info = f"时间：{m_result['time']}。不通过审核，请检查内容后重新投稿。"
-            elif i["state"] == 3: state_info = f"时间：{m_result['time']} 。已被删除。"
+            if i["state"] == 0: state_info = f"通过审核，已加入回声洞。\n时间：{i['time']}。"
+            elif i["state"] == 1: state_info = f"收到投稿，等待审核。\n时间：{i['time']}。"
+            elif i["state"] == 2: state_info = f"不通过审核，请检查内容后重新投稿。\n时间：{i['time']}。"
+            elif i["state"] == 3: state_info = f"已被删除。\n时间：{i['time']} 。"
             else: logger.error(f"There is something wrong with state: \nA non-existent value:{i['state']}")
             every_msg = {
                 "type": "node",
@@ -124,11 +122,11 @@ async def cave_handle(
                     + f"来自——{(await bot.get_stranger_info(user_id=i['contributor_id']))['nickname']}"
                     + f"（{i['contributor_id']}）"
                     + f"\n"
-                    + f"状态：{state_info}"
+                    + state_info
                 }
             }
-            m_forward_msg.append(every_msg) 
-        await bot.send_group_forward_msg(group_id = event.group_id, messages = m_forward_msg)
+            m_forward_msg.append(every_msg)
+        await bot.send_group_forward_msg(group_id=event.group_id, messages=m_forward_msg)
 
     elif args[1] == "h":
         #args = args.replace('-h', '', 1).strip()
@@ -224,7 +222,7 @@ async def cave_handle(
                 # msg = str(f"\n".join(white_B))
                 wBg_msg = ""
                 for i in white_B: wBg_msg += (await bot.get_stranger_info(user_id = i))["nickname"] + f"（{str(i)}）\n" 
-                await cave_matcher.finish(message = f"群（{event.group_id}）的白名单B（以下成员务必添加bot为好友）：" + wBg_msg)
+                await cave_matcher.finish(message = f"群（{event.group_id}）的白名单B（以下成员务必添加bot为好友）：\n" + wBg_msg)
 
 async def user_checker(event: Event) -> bool:
     return event.get_user_id() in white_b_owner
@@ -234,7 +232,6 @@ setcave = on_command(cmd="setcave", rule=user_checker)
 async def setcave_handle(
     bot: Bot,
     event: PrivateMessageEvent,
-    # state: T_State = State(),
     args: Message = CommandArg()
 ):
     cave = Cave(group_id=None)
@@ -263,7 +260,7 @@ async def setcave_handle(
     if args[1] == 'l':
         args = args.replace("-l", "", 1).strip()
         if args: await setcave.finish(message = f"多余的参数“{args}”")
-        l_result = cave.set_l()
+        l_result = cave.get_l()
         if l_result == []: await setcave.finish(message = "暂无待审核的投稿。")
         l_forward_msg = []
         for i in l_result:
@@ -279,14 +276,14 @@ async def setcave_handle(
                 }
             }
             l_forward_msg.append(every_msg)
-        await bot.send_private_forward_msg(user_id = event.get_user_id(), messages = l_forward_msg)
+        await bot.send_private_forward_msg(user_id=event.get_user_id(), messages=l_forward_msg)
         await setcave.finish()
 
     if args[1] == 'e':
         args = args.replace("-e", "", 1).strip()
         try: e_id = int(args)
         except: await setcave.finish(message = f"无法将“{args}”识别为有效数字！")
-        e_result = cave.set_e(cave_id = e_id)
+        e_result = cave.get_e(cave_id = e_id)
         if 'error' in e_result: await setcave.finish(message = e_result['error'])
         elif 'success' in e_result: await setcave.finish(message = e_result['success'])
         else: logger.error("There is something wrong with Cave.set_e()")
