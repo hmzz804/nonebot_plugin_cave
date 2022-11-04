@@ -190,12 +190,14 @@ class Cave():
         self.data["id_num"] += 1
         
         #id存储部分，待改
+        ...
         cave_id = self.data['id_num']
         
         for i in self.data["groups_dict"]:
-            self.data["groups_dict"][i]["m_list"]:list.append({
+            self.data["groups_dict"][i]["m_list"].append({
                 'cave_id':cave_id,
                 'state':state,
+                'contributor_id':contributor_id,
                 'time':str(datetime.datetime.now())})
         self.cave.append({
                 'cave_id':cave_id,
@@ -203,11 +205,9 @@ class Cave():
                 'contributor_id':contributor_id,
                 'state':state})
         self.save()
-        return {
-            'success':f'添加成功，序号为 {cave_id}，\n来自{contributor_id}',
-            'white_B':self.data['white_B'],
-            'cave_id':cave_id
-        }
+        return {'success':f'添加成功，序号为 {cave_id}，\n来自{contributor_id}',
+                'white_B':self.data['white_B'],
+                'cave_id':cave_id}
 
     def remove(self, index:int) -> dict:
         '''
@@ -219,10 +219,12 @@ class Cave():
                 self.cave.remove(i)
                 self.save()
                 return {'success':'删除成功！'}
-        self.data["groups_dict"][self.group_id]["m_list"]:list.append({
+        self.data["groups_dict"][self.group_id]["m_list"].append({
             'cave_id':index,
             'state':3,
+            'contributor_id':self.get_cave(index=index)['contributor_id'],
             'time':str(datetime.datetime.now())})
+        self.save()
         return {'error':f"索引为“{index}”的内容不存在或已被删除。"}
 
     def get_cave(self, index:int) -> dict:
@@ -291,7 +293,6 @@ class Cave():
         '''
         return self.data["groups_dict"][self.group_id]["white_A"]
 
-
     def wB_add(self, a_id) -> dict:
         '''
         添加白名单B成员
@@ -322,7 +323,6 @@ class Cave():
         '''
         return self.data["white_B"]
 
-
     def set_t(self, cave_id:int) -> dict:
         '''
         通过审核
@@ -342,13 +342,17 @@ class Cave():
         '''
         不通过审核
         '''
-        if self.check_set_id(id=cave_id, change_state=2):
+        if self.check_set_id(id=cave_id, change_state=None):
             for i in self.data["groups_dict"]:
                 self.data["groups_dict"][i]["m_list"].append({
                     'cave_id':cave_id,
                     'state':2,
                     'contributor_id':self.get_cave(index=cave_id)['contributor_id'],
                     'time':str(datetime.datetime.now())})
+            for i in self.cave:
+                if i['cave_id'] == cave_id:
+                    self.cave.remove(i)
+                    self.save()
             self.save()
             return {'success':f'操作成功，序号:({cave_id})通过不审核，已将其删除。'}
         else: return {'error':'此序号不存在或已被删除或已被审核！'}

@@ -65,7 +65,7 @@ async def cave_handle(
         if not args: await cave_matcher.finish(message = "参数呢？")
         try: r_index = int(args)
         except: await cave_matcher.finish(message = "后置参数类型有误，请确保为数字")
-        r_result = cave.remove(index = r_index)
+        r_result = cave.remove(index=r_index)
         if 'error' in r_result: await cave_matcher.finish(message = r_result['error'])
         elif 'success' in r_result: await cave_matcher.finish(message = r_result['success'])
         else: logger.error("There is something wrong with Cave.remove()")
@@ -83,8 +83,7 @@ async def cave_handle(
             + f"\n"
             + Message(g_result["cqcode"])
             + f"\n——"
-            + (await bot.get_stranger_info(user_id = g_result['contributor_id']))["nickname"]
-        )
+            + (await bot.get_stranger_info(user_id = g_result['contributor_id']))["nickname"])
 
     elif args[1] == "c":
         if event.get_user_id() not in super_users: await cave_matcher.finish(message = "无-c权限")
@@ -108,23 +107,17 @@ async def cave_handle(
         m_forward_msg = []
         print(m_result)
         for i in m_result:
-            if i["state"] == 0: state_info = f"通过审核，已加入回声洞。\n时间：{i['time']}。"
-            elif i["state"] == 1: state_info = f"收到投稿，等待审核。\n时间：{i['time']}。"
-            elif i["state"] == 2: state_info = f"不通过审核，请检查内容后重新投稿。\n时间：{i['time']}。"
-            elif i["state"] == 3: state_info = f"已被删除。\n时间：{i['time']} 。"
+            if i["state"] == 0: state_info = f"状态：通过审核，已加入回声洞。\n时间：{i['time']}。"
+            elif i["state"] == 1: state_info = f"状态：收到投稿，等待审核。\n时间：{i['time']}。"
+            elif i["state"] == 2: state_info = f"状态：不通过审核，请检查内容后重新投稿。\n时间：{i['time']}。"
+            elif i["state"] == 3: state_info = f"状态：已被删除。\n时间：{i['time']} 。"
             else: logger.error(f"There is something wrong with state: \nA non-existent value:{i['state']}")
-            every_msg = {
-                "type": "node",
-                "data":{
-                    "name": "bot",
-                    "uin": event.self_id,
-                    "content": f'回声洞（{i["cave_id"]}）：'
-                    + f"来自——{(await bot.get_stranger_info(user_id=i['contributor_id']))['nickname']}"
-                    + f"（{i['contributor_id']}）"
-                    + f"\n"
-                    + state_info
-                }
-            }
+            every_msg ={"type": "node",
+                        "data":{"name": "bot",
+                                "uin": event.self_id,
+                                "content": f'回声洞（{i["cave_id"]}）：'
+                                + f"来自——{(await bot.get_stranger_info(user_id=i['contributor_id']))['nickname']}"
+                                + f"（{i['contributor_id']}）\n{state_info}"}}
             m_forward_msg.append(every_msg)
         await bot.send_group_forward_msg(group_id=event.group_id, messages=m_forward_msg)
 
@@ -139,10 +132,8 @@ async def cave_handle(
 
     elif args[1] == "v":
         args = args.replace('-v', '', 1).strip()
-        if not args:
-            await cave_matcher.finish(message = version)
-        else:
-            await cave_matcher.finish(message = f"多余的参数“{args}”")
+        if not args: await cave_matcher.finish(message = version)
+        else: await cave_matcher.finish(message = f"多余的参数“{args}”")
 
     elif args[1] == "w":
         if (event.get_user_id() not in super_users) and (event.get_user_id() not in white_b_owner):
@@ -264,17 +255,14 @@ async def setcave_handle(
         if l_result == []: await setcave.finish(message = "暂无待审核的投稿。")
         l_forward_msg = []
         for i in l_result:
-            every_msg = {
-                "type": "node",
-                "data":{
-                    "name": "投稿人",
-                    "uin": event.self_id,
-                    "content": f'待审核回声洞（{i["cave_id"]}）：\n'
-                    + i["cqcode"]
-                    + f"\n——{(await bot.get_stranger_info(user_id=i['contributor_id']))['nickname']}（{i['contributor_id']}）"
-                    + f"（{i['contributor_id']}）"
-                }
-            }
+            every_msg ={"type": "node",
+                        "data":{
+                            "name": "投稿人",
+                            "uin": event.self_id,
+                            "content":f'待审核回声洞（{i["cave_id"]}）：\n'
+                                    + i["cqcode"]
+                                    + f"\n——{(await bot.get_stranger_info(user_id=i['contributor_id']))['nickname']}（{i['contributor_id']}）"
+                                    + f"（{i['contributor_id']}）"}}
             l_forward_msg.append(every_msg)
         await bot.send_private_forward_msg(user_id=event.get_user_id(), messages=l_forward_msg)
         await setcave.finish()
@@ -287,3 +275,5 @@ async def setcave_handle(
         if 'error' in e_result: await setcave.finish(message = e_result['error'])
         elif 'success' in e_result: await setcave.finish(message = e_result['success'])
         else: logger.error("There is something wrong with Cave.set_e()")
+
+
