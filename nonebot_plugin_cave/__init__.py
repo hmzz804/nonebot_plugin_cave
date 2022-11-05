@@ -42,11 +42,23 @@ async def cave_handle(
     if not (len(args) >= 2 and args[0] == "-") : await cave_matcher.finish(message = "参数格式有误!")
     if args[1] not in ['a','r','g','c','m','h','v','w']: await cave_matcher.finish(message = f"无法将“{args[1]}”识别为有效参数！")
     if args[1] == "a":
-        cqcode:str = args.replace('-a', '', 1).strip()
-        a_result = cave.add(new_content={
-            'cqcode':cqcode, 
-            'contributor_id':event.get_user_id(),
-            'state':1})
+        data = json.loads(event.json())
+        isReply = False
+        for i in data["original_message"]:
+            if i["type"] == "reply":
+                isReply = True
+        if isReply:
+            cqcode:str = str(event.reply.message)
+            a_result = cave.add(new_content={
+                'cqcode':cqcode, 
+                'contributor_id':event.reply.sender.user_id,
+                'state':1})
+        else:
+            cqcode:str = args.replace('-a', '', 1).strip()
+            a_result = cave.add(new_content={
+                'cqcode':cqcode, 
+                'contributor_id':event.get_user_id(),
+                'state':1})
         for i in a_result['white_B']:
             await bot.send_msg(
                 message_type="private",
