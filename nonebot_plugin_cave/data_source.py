@@ -195,7 +195,6 @@ class Cave():
         self.data["total_num"] += 1
         self.data["id_num"] += 1
 
-        # 编译消息段部分
         pic_num = 0
         for i in message:
             if i['type'] == 'image':
@@ -210,7 +209,6 @@ class Cave():
                 text = i['data']['text']
                 i.pop('data')
                 i['text'] = text
-        # 已完全实现本地存储，接下来该写根据本地图片发送了，图片文件名格式在bot测试群，cave.json里有例子
 
         for i in self.data["groups_dict"]:
             self.data["groups_dict"][i]["m_list"].append(
