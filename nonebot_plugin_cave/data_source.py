@@ -12,6 +12,7 @@ env_config = Config(**get_driver().config.dict())
 super_users:list = list(env_config.superusers)
 white_b_owner:list = env_config.white_b_owner
 
+
 class Cave():
     def __init__(self, group_id:str) -> None:
         # 路径
