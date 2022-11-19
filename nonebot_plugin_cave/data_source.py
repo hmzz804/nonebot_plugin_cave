@@ -1,9 +1,9 @@
 import datetime
 import json
+import os
 import random
 import urllib.request
 from pathlib import Path
-from typing import Dict, List
 
 import requests
 from nonebot import Config, get_driver
@@ -23,18 +23,16 @@ class Cave():
         self.dir.mkdir(parents=True, exist_ok=True)
         self.pic_dir.mkdir(parents=True, exist_ok=True)
         # 初始化属性
-        self.cave: List[dict] = []
-        self.data: Dict = {}
+        self.cave: list[dict] = []
+        self.data: dict = {}
         self.group_id: str = group_id
         self.load()
 
     def load(self):
         """读取`cave.json`,`data.json`"""
-        if self.check_path():
+        if self.data_path.exists() and self.data_path.is_file():
             with self.data_path.open("r") as f:
-                self.data: Dict = json.load(f)
-            with self.cave_path.open("r") as f:
-                self.cave: List[dict] = json.load(f)
+                self.data: dict = json.load(f)
         else:
             with self.data_path.open("w") as f:
                 initialize_dict = {
@@ -44,6 +42,11 @@ class Cave():
                     "id_num": 0
                     }
                 json.dump(initialize_dict, f, indent=4)
+            self.load()
+        if self.cave_path.exists() and self.cave_path.is_file():
+            with self.cave_path.open("r") as f:
+                self.cave: list[dict] = json.load(f)
+        else:
             with self.cave_path.open("w") as f:
                 initialize_list = []
                 json.dump(initialize_list, f, indent=4)
@@ -70,6 +73,15 @@ class Cave():
         return self.data_path.exists() and self.data_path.is_file() \
             and self.cave_path.exists() and self.data_path.is_file()
 
+    def whether_id(self, id:int) -> bool:
+        '''检查是否有此id'''
+        result = False
+        for i in self.cave:
+            if i['cave_id'] == id:
+                result =True
+                break
+        return result
+
     def check_wA_id(self, id:str) -> bool:
         '''检查白名单A中是否有指定id'''
         return id in [i for i in self.data["groups_dict"][self.group_id]["white_A"]]
@@ -78,7 +90,7 @@ class Cave():
         '''检查白名单B中是否有指定id'''
         return id in [i for i in self.data["white_B"]]
 
-    def check_set_id(self, id:int, change_state:int) -> bool:
+    def check_id_state(self, id:int, change_state:int) -> bool:
         '''
         检查要操作的id的状态,并将传入的id的state改为change_state\\
         state值的意义：
@@ -191,9 +203,9 @@ class Cave():
             state 3 : 被-r删除
         '''
         #id存储部分，待改
-        cave_id = self.data['id_num']
         self.data["total_num"] += 1
         self.data["id_num"] += 1
+        cave_id = self.data['id_num']
 
         pic_num = 0
         for i in message:
@@ -239,22 +251,30 @@ class Cave():
         移除cave
             index : 序号
         '''
+        if not self.whether_id(id=index):
+            return {
+                'error':f"索引为“{index}”的内容不存在或已被删除。"
+            }
+        for i in self.data["groups_dict"]:
+            self.data["groups_dict"][i]["m_list"].append(
+                {
+                    'cave_id':index,
+                    'state':3,
+                    'contributor_id':self.get_cave(index=index)['contributor_id'],
+                    'time':str(datetime.datetime.now())
+                }
+            )
         for i in self.cave:
             if i['cave_id'] == index:
+                deleted = i
                 self.cave.remove(i)
-                self.save()
-                return {'success':'删除成功！'}
-        self.data["groups_dict"][self.group_id]["m_list"].append(
-            {
-                'cave_id':index,
-                'state':3,
-                'contributor_id':self.get_cave(index=index)['contributor_id'],
-                'time':str(datetime.datetime.now())
-            }
-        )
         self.save()
+        #删除本地存储关于此回声洞的图片
+        for i in deleted['message']:
+            if i['type'] == 'image':
+                os.remove(path=i['path'])
         return {
-            'error':f"索引为“{index}”的内容不存在或已被删除。"
+            'success':'删除成功！'
         }
 
     def get_cave(self, index:int) -> dict:
@@ -262,12 +282,13 @@ class Cave():
         查看cave
             index : 序号
         '''
+        if not self.whether_id(id=index):
+            return {
+                'error':f'索引为“{index}”的内容不存在或已被删除。'
+            }
         for i in self.cave:
             if i['cave_id'] == index:
                 return i
-        return {
-            'error':f'索引为“{index}”的内容不存在或已被删除。'
-        }
     
     def set_cd(self, cd_num:int, cd_unit:str) -> dict:
         '''
@@ -386,7 +407,7 @@ class Cave():
         '''
         通过审核
         '''
-        if self.check_set_id(id=cave_id, change_state=0):
+        if self.check_id_state(id=cave_id, change_state=0):
             for i in self.data["groups_dict"]:
                 self.data["groups_dict"][i]["m_list"].append(
                     {
@@ -409,7 +430,7 @@ class Cave():
         '''
         不通过审核
         '''
-        if self.check_set_id(id=cave_id, change_state=None):
+        if self.check_id_state(id=cave_id, change_state=None):
             for i in self.data["groups_dict"]:
                 self.data["groups_dict"][i]["m_list"].append({
                     'cave_id':cave_id,
@@ -447,7 +468,7 @@ class Cave():
             state 2 : 未通过审核
             state 3 : 被-r删除
         '''
-        if self.check_set_id(id = cave_id, change_state = None):
+        if self.check_id_state(id = cave_id, change_state = None):
             for i in self.cave:
                 if i['cave_id'] == cave_id:
                     return {
