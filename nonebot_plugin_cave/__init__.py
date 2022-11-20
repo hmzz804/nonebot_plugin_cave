@@ -39,9 +39,9 @@ def msg(initial_msg:list) -> Message:
 cave_matcher = on_command(cmd='cave')
 @cave_matcher.handle()
 async def cave_handle(
-    bot: Bot,
-    event: GroupMessageEvent,
-    args: Message=CommandArg(),
+    bot:Bot,
+    event:GroupMessageEvent,
+    args:Message=CommandArg(),
     command=CommandStart(),
 ):
     cave = Cave(group_id=str(event.group_id))
@@ -80,6 +80,8 @@ async def cave_handle(
                 )
         else:
             cqcode:str = args.replace('-a', '', 1).strip()
+            if not cqcode:
+                await cave_matcher.finish(message="请[回复]添加的内容，或在-a后添加内容。")
             a_message:list = json.loads(event.json())['message']
             a_msg = a_message[0]['data']['text'].replace(command, '', 1).strip()
             a_msg = a_msg.replace('cave', '', 1).strip()
@@ -91,8 +93,7 @@ async def cave_handle(
             await bot.send_msg(
                 message_type="private",
                 user_id=i,
-                message=f"待审核回声洞（{a_result['cave_id']}）"
-                + f"\n"
+                message=f"待审核回声洞（{a_result['cave_id']}）\n"
                 + Message(cqcode)
                 + f"\n——{(await bot.get_stranger_info(user_id=event.get_user_id()))['nickname']}"
                 + f"（{event.get_user_id()}）"
