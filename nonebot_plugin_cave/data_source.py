@@ -445,7 +445,8 @@ class Cave():
             return {
                 'success':f'操作成功，序号:({cave_id})不通过审核，已将其删除。'
             }
-        else: return {
+        else:
+            return {
             'error':'此序号不存在或已被删除或已被审核！'
         }
 
