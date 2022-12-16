@@ -31,6 +31,6 @@
 ## 冷却：
 **__冷却时间长短、上次获取cave的时间,均为分群的存储,各群冷却互不影响__**
 
-## 已知问题：
-- 由于是用gocq云端存储的图片的url，图片几个月后会过期失效。（已完成修复：）
+## 后记:
 - 来个有缘人帮我把存在json里的图片绝对路径改成相对路径罢，换数据的话绝对路径不太方便
+- 有问题可加群[点我加群](https://qm.qq.com/cgi-bin/qm/qr?k=0ooOw1C6cRLFGaw_rEcf60p6hKqojGe_&jump_from=webapi&authKey=o9g5NjKyg4lrluy9wxU8GLrK9AUCxoIFjyJqxMxuYapMwwLfKQRv9VYGZXcPPV5f)
