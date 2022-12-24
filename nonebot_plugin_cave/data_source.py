@@ -1,19 +1,15 @@
-import datetime
 import json
 import os
 import random
 import urllib.request
+from datetime import datetime
 from pathlib import Path
 
 import requests
-from nonebot import Config, get_driver
 
-env_config = Config(**get_driver().config.dict())
-super_users:list = list(env_config.superusers)
-white_b_owner:list = env_config.white_b_owner
 
 class Cave():
-    def __init__(self, group_id:str) -> None:
+    def __init__(self, **data) -> None:
         # 路径
         self.data_path = Path(r"data/cave/data.json").absolute()
         self.cave_path = Path(r"data/cave/cave.json").absolute()
@@ -25,7 +21,15 @@ class Cave():
         # 初始化属性
         self.cave: list[dict] = []
         self.data: dict = {}
-        self.group_id: str = group_id
+
+        self.is_group = False
+        try:
+            self.white_b_owner:list = data['white_b_owner']
+            self.super_users:list = data['super_users']
+            self.group_id:str = data['group_id']
+            self.is_group = True
+        except:
+            pass
         self.load()
 
     def load(self):
@@ -37,7 +41,7 @@ class Cave():
             with self.data_path.open("w") as f:
                 initialize_dict = {
                     "groups_dict":{},
-                    "white_B":list(white_b_owner),
+                    "white_B":self.white_b_owner,
                     "total_num": 0,
                     "id_num": 0
                     }
@@ -51,14 +55,15 @@ class Cave():
                 initialize_list = []
                 json.dump(initialize_list, f, indent=4)
             self.load()
-        if (self.group_id not in self.data['groups_dict']) and self.group_id:
-            self.data["groups_dict"][self.group_id] = {
-                "cd_num": 1,
-                "cd_unit": "sec",
-                "last_time": "1000-01-01 00:00:00.114514",
-                "m_list": [],
-                "white_A":[]
-            }
+        if self.is_group:
+            if (self.group_id not in self.data['groups_dict']) and self.group_id:
+                self.data["groups_dict"][self.group_id] = {
+                    "cd_num": 1,
+                    "cd_unit": "sec",
+                    "last_time": "1000-01-01 00:00:00.114514",
+                    "m_list": [],
+                    "white_A":[]
+                }
         self.save()
 
     def save(self) -> None:
@@ -118,8 +123,8 @@ class Cave():
             第0项(str):现在时间与上次时间的差值字符串
             第1项(bool):cd是否已过
         '''
-        now_time = datetime.datetime.now()
-        last_time = datetime.datetime.strptime(last_time,"%Y-%m-%d %H:%M:%S.%f")
+        now_time = datetime.now()
+        last_time = datetime.strptime(last_time,"%Y-%m-%d %H:%M:%S.%f")
         dif_sec, dif_day = (now_time - last_time).seconds, (now_time - last_time).days
         if unit == "hour":
             sec_cd = cd*3600
@@ -184,7 +189,7 @@ class Cave():
         while True:
             send_msg = random.choice(self.cave)
             if send_msg["state"] == 0:
-                self.data["groups_dict"][self.group_id]["last_time"] = str(datetime.datetime.now())
+                self.data["groups_dict"][self.group_id]["last_time"] = str(datetime.now())
                 self.save()
                 return send_msg
     
@@ -228,7 +233,7 @@ class Cave():
                     'cave_id':cave_id,
                     'state':state,
                     'contributor_id':contributor_id,
-                    'time':str(datetime.datetime.now())
+                    'time':str(datetime.now())
                 }
             )
         self.cave.append(
@@ -261,7 +266,7 @@ class Cave():
                     'cave_id':index,
                     'state':3,
                     'contributor_id':self.get_cave(index=index)['contributor_id'],
-                    'time':str(datetime.datetime.now())
+                    'time':str(datetime.now())
                 }
             )
         for i in self.cave:
@@ -269,7 +274,7 @@ class Cave():
                 deleted = i
                 self.cave.remove(i)
         self.save()
-        #删除本地存储关于此回声洞的图片
+        # 删除本地存储关于此回声洞的图片
         for i in deleted['message']:
             if i['type'] == 'image':
                 os.remove(path=i['path'])
@@ -358,9 +363,7 @@ class Cave():
             }
 
     def wA_get(self) -> list:
-        '''
-        获取当前群的白名单A的成员列表
-        '''
+        '''获取当前群的白名单A的成员列表'''
         return self.data["groups_dict"][self.group_id]["white_A"]
 
     def wB_add(self, a_id) -> dict:
@@ -403,10 +406,8 @@ class Cave():
         '''
         return self.data["white_B"]
 
-    def set_t(self, cave_id:int) -> dict:
-        '''
-        通过审核
-        '''
+    def set_true(self, cave_id:int) -> dict:
+        '''通过审核'''
         if self.check_id_state(id=cave_id, change_state=0):
             for i in self.data["groups_dict"]:
                 self.data["groups_dict"][i]["m_list"].append(
@@ -414,7 +415,7 @@ class Cave():
                         'cave_id':cave_id,
                         'state':0,
                         'contributor_id':self.get_cave(index=cave_id)['contributor_id'],
-                        'time':str(datetime.datetime.now())
+                        'time':str(datetime.now())
                     }
                 )
             self.save()
@@ -426,17 +427,23 @@ class Cave():
                 'error':'此序号不存在或已被删除或已被审核！'
             }
 
-    def set_f(self, cave_id:int) -> dict:
-        '''
-        不通过审核
-        '''
+    def set_true_all(self) -> None:
+        '''当前待审核内容全部通过审核'''
+        for i in self.get_waiting_caves():
+            self.set_true(cave_id=i['cave_id'])
+
+    def set_false(self, cave_id:int) -> dict:
+        '''不通过审核'''
         if self.check_id_state(id=cave_id, change_state=None):
             for i in self.data["groups_dict"]:
-                self.data["groups_dict"][i]["m_list"].append({
-                    'cave_id':cave_id,
-                    'state':2,
-                    'contributor_id':self.get_cave(index=cave_id)['contributor_id'],
-                    'time':str(datetime.datetime.now())})
+                self.data["groups_dict"][i]["m_list"].append(
+                    {
+                        'cave_id':cave_id,
+                        'state':2,
+                        'contributor_id':self.get_cave(index=cave_id)['contributor_id'],
+                        'time':str(datetime.now())
+                    }
+                )
             for i in self.cave:
                 if i['cave_id'] == cave_id:
                     self.cave.remove(i)
@@ -449,18 +456,21 @@ class Cave():
             return {
                 'error':'此序号不存在或已被删除或已被审核！'
             }
+    
+    def set_false_all(self) -> None:
+        '''当前待审核内容全部不通过审核'''
+        for i in self.get_waiting_caves():
+            self.set_false(cave_id=i['cave_id'])
 
-    def get_l(self) -> list:
-        '''
-        返回当前未处理的审核序号列表
-        '''
+    def get_waiting_caves(self) -> list:
+        '''返回当前未处理的审核序号列表'''
         msg = []
         for i in self.cave:
             if i['state'] == 1:
                 msg.append(i)
         return msg
 
-    def get_e(self, cave_id:int) -> dict:
+    def get_state(self, cave_id:int) -> dict:
         '''
         返回此id的审核情况\\
         state值的意义：

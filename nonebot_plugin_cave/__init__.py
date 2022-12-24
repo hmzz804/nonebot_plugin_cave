@@ -13,15 +13,15 @@ from nonebot.plugin import on_command
 from .data_source import Cave
 
 env_config = Config(**get_driver().config.dict())
-super_users:list = list(env_config.superusers)
-white_b_owner:list = env_config.white_b_owner
+super_users = list(env_config.superusers)
+white_b_owner = list(env_config.white_b_owner)
 
 #版本信息
 version = """
 
 """.strip()
 
-def msg(initial_msg:list) -> Message:
+def process_message(initial_msg:list) -> Message:
     '''将列表拼接成消息段'''
     messages = []
     for i in initial_msg:
@@ -35,7 +35,6 @@ def msg(initial_msg:list) -> Message:
             )
     return Message(messages)
 
-
 cave_matcher = on_command(cmd='cave')
 @cave_matcher.handle()
 async def cave_handle(
@@ -44,13 +43,17 @@ async def cave_handle(
     args:Message=CommandArg(),
     command=CommandStart(),
 ):
-    cave = Cave(group_id=str(event.group_id))
+    cave = Cave(
+        group_id = str(event.group_id),
+        white_b_owner = white_b_owner,
+        super_users = super_users
+    )
     if not args:
         s_result = cave.select()
         if 'error' in s_result:
             await cave_matcher.finish(message=s_result['error'])
         else:
-            s_message = msg(initial_msg=s_result['message'])
+            s_message = process_message(initial_msg=s_result['message'])
             await cave_matcher.finish(
             message=f"回声洞 ——（{s_result['cave_id']}）\n"
                     + s_message
@@ -132,7 +135,7 @@ async def cave_handle(
         if 'error' in g_result:
             await cave_matcher.finish(message = g_result['error'])
         else:
-            g_message = msg(initial_msg=g_result['message'])
+            g_message = process_message(initial_msg=g_result['message'])
             await cave_matcher.finish(
             message=f"回声洞 ——（{g_result['cave_id']}）\n"
                     + g_message
@@ -295,7 +298,7 @@ async def cave_handle(
                 wBg_msg = ""
                 for i in white_B:
                     wBg_msg += (await bot.get_stranger_info(user_id = i))["nickname"] + f"（{str(i)}）\n" 
-                await cave_matcher.finish(message = f"群（{event.group_id}）的白名单B（以下成员务必添加bot为好友）：\n" + wBg_msg)
+                await cave_matcher.finish(message = f"白名单B（以下成员务必添加bot为好友）：\n" + wBg_msg)
         else:
             await cave_matcher.finish(message = f"无法将“{args[0]}”识别为有效子命令！")
 
@@ -336,11 +339,14 @@ async def setcave_handle(
         await setcave.finish(message = "参数格式有误")
     if args[1] == 't':
         args = args.replace("-t", "", 1).strip()
+        if args == "all":
+            cave.set_true_all()
+            await cave_matcher.finish(message="已将所有内容通过审核。")
         try:
             t_id = int(args)
         except:
             await setcave.finish(message = f"无法将“{args}”识别为有效数字！")
-        t_result = cave.set_t(cave_id = t_id)
+        t_result = cave.set_true(cave_id = t_id)
         if 'error' in t_result:
             await setcave.finish(message = t_result['error'])
         elif 'success' in t_result:
@@ -350,11 +356,14 @@ async def setcave_handle(
 
     if args[1] == 'f':
         args = args.replace("-f", "", 1).strip()
+        if args == "all":
+            cave.set_false_all()
+            await cave_matcher.finish(message="已将所有内容不通过审核。")
         try:
             f_id = int(args)
         except:
             await setcave.finish(message = f"无法将“{args}”识别为有效数字！")
-        f_result = cave.set_f(cave_id = f_id)
+        f_result = cave.set_false(cave_id = f_id)
         if 'error' in f_result:
             await setcave.finish(message = f_result['error'])
         elif 'success' in f_result:
@@ -366,7 +375,7 @@ async def setcave_handle(
         args = args.replace("-l", "", 1).strip()
         if args:
             await setcave.finish(message = f"多余的参数“{args}”")
-        l_result = cave.get_l()
+        l_result = cave.get_waiting_caves()
         if l_result == []:
             await setcave.finish(message = "暂无待审核的投稿。")
         l_forward_msg = []
@@ -378,7 +387,7 @@ async def setcave_handle(
                         "name": "bot",
                         "uin": event.self_id,
                         "content":f'待审核回声洞（{i["cave_id"]}）：\n'
-                                + msg(initial_msg=i['message'])
+                                + process_message(initial_msg=i['message'])
                                 + f"\n——{(await bot.get_stranger_info(user_id=i['contributor_id']))['nickname']}"
                                 + f"（{i['contributor_id']}）"
                     }
@@ -393,14 +402,23 @@ async def setcave_handle(
             e_id = int(args)
         except:
             await setcave.finish(message = f"无法将“{args}”识别为有效数字！")
-        e_result = cave.get_e(cave_id = e_id)
+        e_result = cave.get_state(cave_id = e_id)
         if 'error' in e_result:
             await setcave.finish(message = e_result['error'])
         elif 'success' in e_result:
-            await setcave.finish(message = e_result['success'])
+            state = e_result['success']
+            if state == 0:
+                state_info = f"状态：通过审核，已加入回声洞。"
+            elif state == 1: 
+                state_info = f"状态：收到投稿，等待审核。"
+            elif state == 2:
+                state_info = f"状态：不通过审核，请检查内容后重新投稿。"
+            elif state == 3:
+                state_info = f"状态：已被删除 。"
+            else:
+                logger.error(f"There is something wrong with state: \nA non-existent value:{i['state']}")
+            await setcave.finish(message = f"回声洞（{e_id}）：\n"+state_info)
         else:
             logger.error("There is something wrong with Cave.set_e()")
-
     else:
         await setcave.finish(message = f"无法将“{args[1]}识别为有效参数")
-
