@@ -317,7 +317,7 @@ class Cave():
             'success':f'成功修改本群cave冷却时间为{cd_num}{cd_unit}'
         }
 
-    def get_m(self) -> list:
+    def get_recent(self) -> list:
         '''
         获取新增的投稿的审核情况，时间截至到上次获取\\
         返回信息列表，并在文件中清除

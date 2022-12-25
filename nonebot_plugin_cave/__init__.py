@@ -16,7 +16,7 @@ env_config = Config(**get_driver().config.dict())
 super_users = list(env_config.superusers)
 white_b_owner = list(env_config.white_b_owner)
 
-#版本信息
+# 版本信息
 version = """
 
 """.strip()
@@ -119,7 +119,7 @@ async def cave_handle(
         elif 'success' in r_result:
             await cave_matcher.finish(message = r_result['success'])
         else:
-            logger.error("There is something wrong with Cave.remove()")
+            logger.error("Error in cave remove")
 
     elif args[1] == "g":
         if not cave.check_wA_id(event.get_user_id()):
@@ -164,17 +164,16 @@ async def cave_handle(
         elif 'success' in c_result:
             await cave_matcher.finish(message = c_result['success'])
         else:
-            logger.error("There is something wrong with Cave.set_cd()")
+            logger.error("Error in cave set_cd")
 
     elif args[1] == "m":
         args:str = args.replace('-m', '', 1).strip()
         if args:
             await cave_matcher.finish(message = f"多余的参数“{args}”")
-        m_result = cave.get_m()
+        m_result = cave.get_recent()
         if 'error' in m_result:
             await cave_matcher.finish(message = m_result['error'])
         m_forward_msg = []
-        print(m_result)
         for i in m_result:
             if i["state"] == 0:
                 state_info = f"状态：通过审核，已加入回声洞。\n时间：{i['time']}。"
@@ -185,7 +184,7 @@ async def cave_handle(
             elif i["state"] == 3:
                 state_info = f"状态：已被删除。\n时间：{i['time']} 。"
             else:
-                logger.error(f"There is something wrong with state: \nA non-existent value:{i['state']}")
+                logger.error(f" Error cave state: \nA non-existent value:{i['state']}")
             m_forward_msg.append(
                 {
                     "type": "node",
@@ -224,7 +223,8 @@ async def cave_handle(
                     await cave_matcher.finish(message = wAa_result['error'])
                 elif 'success' in wAa_result:
                     await cave_matcher.finish(message = wAa_result['success'])
-                else: logger.error("There is something wrong with Cave.wA_add()")
+                else:
+                    logger.error("Error in cave wA_add")
             elif args[1] == "r":
                 try: wAr_id = int(args[2:])
                 except:
@@ -242,7 +242,7 @@ async def cave_handle(
                 elif 'success' in wAr_result:
                     await cave_matcher.finish(message = wAr_result['success'])
                 else:
-                    logger.error("There is something wrong with Cave.wA_remove()")
+                    logger.error(" Error in cave wA_remove")
             elif args[1] == "g":
                 if len(args) > 2:
                     await cave_matcher.finish(message = f'多余的参数{args[2:]}。')
@@ -272,7 +272,8 @@ async def cave_handle(
                     await cave_matcher.finish(message = wBa_result["error"])
                 elif 'success' in wBa_result:
                     await cave_matcher.finish(message = wBa_result["success"])
-                else: logger.error("There is something wrong with Cave.wB_add()")
+                else:
+                    logger.error("Error in cave wB_add")
             elif args[1] == "r":
                 try:
                     wBr_id = int(args[2:])
@@ -290,7 +291,8 @@ async def cave_handle(
                     await cave_matcher.finish(message = wBr_result['error'])
                 elif 'success' in wBr_result:
                     await cave_matcher.finish(message = wBr_result['success'])
-                else: logger.error("There is something wrong with Cave.wB_remove()")
+                else:
+                    logger.error("Error in cave wB_remove")
             elif args[1] == "g":
                 if len(args) > 2:
                     await cave_matcher.finish(message = f'多余的参数{args[2:]}。')
@@ -352,7 +354,7 @@ async def setcave_handle(
         elif 'success' in t_result:
             await setcave.finish(message = t_result['success'])
         else:
-            logger.error("There is something wrong with Cave.set_t()")
+            logger.error("Error in cave set_true")
 
     if args[1] == 'f':
         args = args.replace("-f", "", 1).strip()
@@ -369,7 +371,7 @@ async def setcave_handle(
         elif 'success' in f_result:
             await setcave.finish(message = f_result['success'])
         else:
-            logger.error("There is something wrong with Cave.set_f()")
+            logger.error("Error in cave set_false")
 
     if args[1] == 'l':
         args = args.replace("-l", "", 1).strip()
@@ -416,9 +418,10 @@ async def setcave_handle(
             elif state == 3:
                 state_info = f"状态：已被删除 。"
             else:
-                logger.error(f"There is something wrong with state: \nA non-existent value:{i['state']}")
+                logger.error(f"Error cave state: \nA non-existent value:{i['state']}")
             await setcave.finish(message = f"回声洞（{e_id}）：\n"+state_info)
         else:
-            logger.error("There is something wrong with Cave.set_e()")
+            logger.error("Error in cave get_state")
+
     else:
         await setcave.finish(message = f"无法将“{args[1]}识别为有效参数")
