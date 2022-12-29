@@ -169,28 +169,34 @@ class Cave():
         with save_path.open("wb") as f:
             f.write(r.content)
 
-    def select(self) -> dict:
+    def select(self, check_cd:bool) -> dict:
         '''
         抽取cave \\
+        参数:
+            check_cd : 是否需要校验冷却时间
         返回要发送的消息的部分内容
         '''
         if (0 not in list(i['state']  for i in self.cave) ) or \
             self.cave == []:
-            return {'error':'库内暂无内容。'}
-        check_cd_result = self.check_cd(
-            cd=self.data["groups_dict"][self.group_id]["cd_num"],
-            unit=self.data["groups_dict"][self.group_id]["cd_unit"],
-            last_time=self.data["groups_dict"][self.group_id]["last_time"]
-        )
-        if not check_cd_result[1]:
             return {
-                'error':f"cave冷却中,恁稍等{check_cd_result[0]}"
-            }
+                'error':'库内暂无内容。'
+            }   
+        if check_cd:
+            check_cd_result = self.check_cd(
+                cd = self.data["groups_dict"][self.group_id]["cd_num"],
+                unit = self.data["groups_dict"][self.group_id]["cd_unit"],
+                last_time = self.data["groups_dict"][self.group_id]["last_time"]
+            )
+            if not check_cd_result[1]:
+                return {
+                    'error':f"cave冷却中,恁稍等{check_cd_result[0]}"
+                }
         while True:
             send_msg = random.choice(self.cave)
             if send_msg["state"] == 0:
-                self.data["groups_dict"][self.group_id]["last_time"] = str(datetime.now())
-                self.save()
+                if check_cd:
+                    self.data["groups_dict"][self.group_id]["last_time"] = str(datetime.now())
+                    self.save()
                 return send_msg
     
     def add(self, message:list, contributor_id:str, state:int) -> dict:

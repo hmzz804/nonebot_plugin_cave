@@ -49,7 +49,7 @@ async def cave_handle(
         super_users = super_users
     )
     if not args:
-        s_result = cave.select()
+        s_result = cave.select(not cave.check_wA_id(event.get_user_id()))
         if 'error' in s_result:
             await cave_matcher.finish(message=s_result['error'])
         else:
@@ -410,13 +410,13 @@ async def setcave_handle(
         elif 'success' in e_result:
             state = e_result['success']
             if state == 0:
-                state_info = f"状态：通过审核，已加入回声洞。"
+                state_info = "状态：通过审核，已加入回声洞。"
             elif state == 1: 
-                state_info = f"状态：收到投稿，等待审核。"
+                state_info = "状态：收到投稿，等待审核。"
             elif state == 2:
-                state_info = f"状态：不通过审核，请检查内容后重新投稿。"
+                state_info = "状态：不通过审核，请检查内容后重新投稿。"
             elif state == 3:
-                state_info = f"状态：已被删除 。"
+                state_info = "状态：已被删除 。"
             else:
                 logger.error(f"Error cave state: \nA non-existent value:{i['state']}")
             await setcave.finish(message = f"回声洞（{e_id}）：\n"+state_info)
