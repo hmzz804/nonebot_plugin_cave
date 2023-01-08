@@ -6,7 +6,7 @@
 群回声洞插件，各群友投稿加入回声洞库，可以随机抽取其中内容。
 用户投稿回声洞后，会自动推送给审核人（白名单B成员）进行审核，通过审核后，才能加入库中。  
 ## env配置:  
-`WHITE_B_OWNER=["qq号","qq号"] #可更改白名单B的人员，个数不限`   
+`WHITE_B_OWNER=["qq号","qq号"] #可更改白名单B的人员，个数不限，默认为超管`   
 ## 注意:  
 - 1.白名单B中的成员必须为bot好友，否则无法推送审核消息！  
 - 2.（待补充）
@@ -33,5 +33,4 @@
 **__每个群的白名单A成员无冷却__**
 
 ## 后记:
-- 来个有缘人帮我把存在json里的图片绝对路径改成相对路径罢，换数据不方便
 - 有问题可[加群](https://qm.qq.com/cgi-bin/qm/qr?k=0ooOw1C6cRLFGaw_rEcf60p6hKqojGe_&jump_from=webapi&authKey=o9g5NjKyg4lrluy9wxU8GLrK9AUCxoIFjyJqxMxuYapMwwLfKQRv9VYGZXcPPV5f)
