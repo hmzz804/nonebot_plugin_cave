@@ -14,8 +14,11 @@ from .data_source import Cave
 
 env_config = Config(**get_driver().config.dict())
 super_users = list(env_config.superusers)
-white_b_owner = list(env_config.white_b_owner)
-
+try:
+    white_b_owner = list(env_config.white_b_owner)
+except:
+    white_b_owner = super_users
+    
 # 版本信息
 version = """
 
