@@ -69,4 +69,4 @@ WHITE_B_OWNER=["qq号","qq号"]
 **__每个群的白名单A成员无冷却__**
 
 ## 后记:
-- 有问题可[加群](https://qm.qq.com/cgi-bin/qm/qr?k=0ooOw1C6cRLFGaw_rEcf60p6hKqojGe_&jump_from=webapi&authKey=o9g5NjKyg4lrluy9wxU8GLrK9AUCxoIFjyJqxMxuYapMwwLfKQRv9VYGZXcPPV5f)
+- 有问题可[issue](https://github.com/hmzz804/nonebot_plugin_cave/issues)或[加群](https://qm.qq.com/cgi-bin/qm/qr?k=0ooOw1C6cRLFGaw_rEcf60p6hKqojGe_&jump_from=webapi&authKey=o9g5NjKyg4lrluy9wxU8GLrK9AUCxoIFjyJqxMxuYapMwwLfKQRv9VYGZXcPPV5f)
