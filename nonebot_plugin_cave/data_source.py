@@ -386,7 +386,7 @@ class Cave():
             self.data["white_B"].append(a_id)
             self.save()
             return {
-                'success':f'成功将账号“{a_id}”添加到的白名单B中！'
+                'success':f'成功将账号“{a_id}”添加到白名单B中！'
             }
 
     def wB_remove(self, r_id) -> dict:
