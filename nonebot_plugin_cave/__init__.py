@@ -101,8 +101,8 @@ async def cave_handle(
                 user_id=i,
                 message=f"待审核回声洞（{a_result['cave_id']}）\n"
                 + Message(cqcode)
-                + f"\n——{(await bot.get_stranger_info(user_id=event.get_user_id()))['nickname']}"
-                + f"（{event.get_user_id()}）"
+                + f"\n——{(await bot.get_stranger_info(user_id=user_id))['nickname']}"
+                + f"（{user_id}）"
             )
         await cave_matcher.finish(message = Message(a_result['success']) )
     
