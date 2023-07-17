@@ -67,7 +67,7 @@ class Cave():
         self.save()
 
     def save(self) -> None:
-        """保存`cave.json`,`data.json`"""
+        """保存 `cave.json`, `data.json`"""
         with self.data_path.open('w') as f:
             json.dump(self.data, f, indent=4)
         with self.cave_path.open('w') as f:
@@ -79,7 +79,7 @@ class Cave():
             and self.cave_path.exists() and self.data_path.is_file()
 
     def whether_id(self, id:int) -> bool:
-        '''检查是否有此id'''
+        '''检查是否有此 ID'''
         result = False
         for i in self.cave:
             if i['cave_id'] == id:
@@ -88,21 +88,21 @@ class Cave():
         return result
 
     def check_wA_id(self, id:str) -> bool:
-        '''检查白名单A中是否有指定id'''
+        '''检查白名单 A 中是否有指定 ID'''
         return id in [i for i in self.data["groups_dict"][self.group_id]["white_A"]]
 
     def check_wB_id(self, id:str) -> bool:
-        '''检查白名单B中是否有指定id'''
+        '''检查白名单 B 中是否有指定 ID'''
         return id in [i for i in self.data["white_B"]]
 
     def check_id_state(self, id:int, change_state:int) -> bool:
         '''
-        检查要操作的id的状态,并将传入的id的state改为change_state\\
-        state值的意义：
-            state 0 : 通过审核，可正常获取
-            state 1 : 待审核
-            state 2 : 未通过审核
-            state 3 : 被-r删除
+        检查要操作的 ID 的状态,并将传入的 ID 的 `state` 改为 `change_state`\\
+        `state` 值的意义:
+            `state 0`: 通过审核, 可正常获取
+            `state 1`: 待审核
+            `state 2`: 未通过审核
+            `state 3`: 内容被删除
         '''
         for i in self.cave:
             if i['cave_id'] == id:
@@ -114,14 +114,14 @@ class Cave():
 
     def check_cd(self, cd:int, unit:str, last_time:str) -> list:
         '''
-        检查cd情况\\
-        参数：  
-            cd : 冷却时间的数字
-            unit : 冷却时间的单位
-            last_time : 上次使用时间
-        返回列表：  
-            第0项(str):现在时间与上次时间的差值字符串
-            第1项(bool):cd是否已过
+        检查冷却情况\\
+        参数:
+            `cd`: 冷却时间的数字
+            `unit`: 冷却时间的单位
+            `last_time`: 上次使用时间
+        返回列表:  
+            第 `0` 项 `(str)`: 现在时间与上次时间的差值字符串
+            第 `1` 项 `(bool)`: 冷却时间是否已过
         '''
         now_time = datetime.now()
         last_time = datetime.strptime(last_time,"%Y-%m-%d %H:%M:%S.%f")
@@ -149,7 +149,7 @@ class Cave():
                 return [result,False]
 
     def print_all(self) -> None:
-        '''打印data,cave'''
+        '''打印 data, cave'''
         with self.data_path.open('r') as f:
             print(f.read())
         with self.cave_path.open('r') as f:
@@ -158,7 +158,7 @@ class Cave():
         print(self.cave)
 
     def get_url_extension(self, url:str) -> str:
-        '''获取url的图片的扩展名'''
+        '''获取 URI 的图片的扩展名'''
         with urllib.request.urlopen(url=url) as response:
             info = response.info()
             return info.get_content_subtype()
@@ -171,9 +171,9 @@ class Cave():
 
     def select(self, check_cd:bool) -> dict:
         '''
-        抽取cave \\
+        抽取回声洞\\
         参数:
-            check_cd : 是否需要校验冷却时间
+            `check_cd`: 是否需要校验冷却时间
         返回要发送的消息的部分内容
         '''
         if (0 not in list(i['state']  for i in self.cave) ) or \
@@ -189,7 +189,7 @@ class Cave():
             )
             if not check_cd_result[1]:
                 return {
-                    'error':f"cave冷却中,恁稍等{check_cd_result[0]}"
+                    'error':f"回声洞冷却中, 恁稍等 {check_cd_result[0]}。"
                 }
         while True:
             send_msg = random.choice(self.cave)
@@ -201,19 +201,19 @@ class Cave():
     
     def add(self, message:list, contributor_id:str, state:int) -> dict:
         '''
-        添加cave \\
-        参数：
-            message: 投稿内容的消息段列表
-            contributor_id: 投稿人QQ号
-            state: 状态码
+        添加回声洞\\
+        参数:
+            `message`: 投稿内容的消息段列表
+            `contributor_id`: 投稿人 QQ 号
+            `state`: 状态码
         返回要发送的消息的部分内容\\
-        state值的意义：
-            state 0 : 通过审核，可正常获取
-            state 1 : 待审核
-            state 2 : 未通过审核
-            state 3 : 被-r删除
+        `state` 值的意义:
+            `state 0`: 通过审核, 可正常获取
+            `state 1`: 待审核
+            `state 2`: 未通过审核
+            `state 3`: 内容被删除
         '''
-        #id存储部分，待改
+        # TODO: ID 存储部分, 待改
         self.data["total_num"] += 1
         self.data["id_num"] += 1
         cave_id = self.data['id_num']
@@ -252,19 +252,19 @@ class Cave():
         )
         self.save()
         return {
-            'success':f'添加成功，序号为 {cave_id}，\n来自{contributor_id}',
+            'success':f'添加成功, 序号为 {cave_id}\n提交者: {contributor_id}',
             'white_B':self.data['white_B'],
             'cave_id':cave_id
         }
 
     def remove(self, index:int) -> dict:
         '''
-        移除cave
-            index : 序号
+        移除回声洞
+            `index`: 序号
         '''
         if not self.whether_id(id=index):
             return {
-                'error':f"索引为“{index}”的内容不存在或已被删除。"
+                'error':f"索引为 {index} 的内容不存在或已被删除。"
             }
         for i in self.data["groups_dict"]:
             self.data["groups_dict"][i]["m_list"].append(
@@ -285,17 +285,17 @@ class Cave():
             if i['type'] == 'image':
                 os.remove(path=i['path'])
         return {
-            'success':'删除成功！'
+            'success':'删除成功。'
         }
 
     def get_cave(self, index:int) -> dict:
         '''
-        查看cave
-            index : 序号
+        查看回声洞
+            `index`: 序号
         '''
         if not self.whether_id(id=index):
             return {
-                'error':f'索引为“{index}”的内容不存在或已被删除。'
+                'error':f'索引为 {index} 的内容不存在或已被删除。'
             }
         for i in self.cave:
             if i['cave_id'] == index:
@@ -304,23 +304,23 @@ class Cave():
     def set_cd(self, cd_num:int, cd_unit:str) -> dict:
         '''
         设置群冷却时间
-            cd_num : 冷却时间的数字
-            cd_unit : 冷却时间的单位('sec','min','hour')
+            `cd_num`: 冷却时间的数字
+            `cd_unit`: 冷却时间的单位 (`sec`, `min`, `hour`)
         '''
         if cd_unit not in ['sec','min','hour']:
             return {
-                'error':f'无法将“{cd_unit}”识别为有效单位'
+                'error':f'无法将 {cd_unit} 识别为有效单位。'
             }
         if not(0 < cd_num < 500):
             return {
-                'error':'冷却时间需大于0，小于500'
+                'error':'冷却时间需大于 0, 小于 500。'
             }
         self.data["groups_dict"][self.group_id]["cd_num"] = cd_num
         self.data["groups_dict"][self.group_id]["cd_unit"] = cd_unit
         self.data["groups_dict"][self.group_id]["last_time"] = "1000-01-01 00:00:00.114514"
         self.save()
         return {
-            'success':f'成功修改本群cave冷却时间为{cd_num}{cd_unit}'
+            'success':f'成功修改本群回声洞冷却时间为 {cd_num}{cd_unit}。'
         }
 
     def get_recent(self) -> list:
@@ -331,62 +331,62 @@ class Cave():
         m_info = self.data["groups_dict"][self.group_id]["m_list"]
         if m_info == [] :
             return {
-                'error':'暂无新增的回声洞处理'
-            }
+                'error':'暂无新增的回声洞处理。'
+            } # type: ignore
         self.data["groups_dict"][self.group_id]["m_list"] = []
         self.save()
         return m_info
 
     def wA_add(self, a_id:str) -> dict:
         '''
-        添加白名单A成员
-            a_id : 添加的账号
+        添加白名单 A 成员
+            `a_id`: 添加的账号
         返回结果
         '''
-        if self.check_wA_id(id=a_id): return {'error':f'此账号已在群“{self.group_id}”的白名单A中！'}
+        if self.check_wA_id(id=a_id): return {'error':f'此账号已在群 {self.group_id} 的白名单 A 中。'}
         else:
             self.data["groups_dict"][self.group_id]["white_A"].append(a_id)
             self.save()
             return {
-                'success':f'成功将账号“{a_id}”添加到群“{self.group_id}”的白名单A中！'
+                'success':f'成功将账号 {a_id} 添加到群 {self.group_id} 的白名单 A 中。'
             }
 
     def wA_remove(self, r_id:str) -> dict:
         '''
-        删除白名单A成员
-            r_id : 删除的账号
+        删除白名单 A 成员
+            `r_id`: 删除的账号
         返回结果
         '''
         if self.check_wA_id(id=r_id): 
             self.data["groups_dict"][self.group_id]["white_A"].remove(r_id)
             self.save()
             return {
-                'success':f'成功将账号“{r_id}”移出群“{self.group_id}”的白名单A！'
+                'success':f'成功将账号 {r_id} 移出群 {self.group_id} 的白名单 A 列表。'
             }
         else: 
             return {
-                'error':f'账号“{r_id}”不在群“{self.group_id}”的白名单A中！'
+                'error':f'账号 {r_id} 不在群 {self.group_id} 的白名单 A 列表里。'
             }
 
     def wA_get(self) -> list:
-        '''获取当前群的白名单A的成员列表'''
+        '''获取当前群的白名单 A 的成员列表'''
         return self.data["groups_dict"][self.group_id]["white_A"]
 
     def wB_add(self, a_id) -> dict:
         '''
         添加白名单B成员
-            a_id : 添加的账号
+            `a_id`: 添加的账号
         返回结果
         '''
         if self.check_wB_id(id=a_id):
             return {
-                'error':f'此账号已在群“{self.group_id}”的白名单B中！'
+                'error':f'此账号已在群 {self.group_id} 的白名单 B 中。'
             }
         else:
             self.data["white_B"].append(a_id)
             self.save()
             return {
-                'success':f'成功将账号“{a_id}”添加到白名单B中！'
+                'success':f'成功将账号“{a_id}”添加到白名单 B 中。'
             }
 
     def wB_remove(self, r_id) -> dict:
@@ -399,16 +399,16 @@ class Cave():
             self.data["white_B"].remove(r_id)
             self.save()
             return {
-                'success':f'成功将账号“{r_id}”移出白名单B！'
+                'success':f'成功将账号 {r_id} 移出白名单 B 列表里。'
             }
         else:
             return {
-                'error':f'账号“{r_id}”不在白名单B中'
+                'error':f'账号 {r_id} 不在白名单 B 中。'
             }
 
     def wB_get(self) -> list:
         '''
-        获取当前的白名单B的成员列表
+        获取当前的白名单 B 的成员列表
         '''
         return self.data["white_B"]
 
@@ -426,11 +426,11 @@ class Cave():
                 )
             self.save()
             return {
-                'success':f'操作成功，序号:({cave_id})通过审核，加入回声洞。'
+                'success':f'操作成功, 回声洞投稿 {cave_id}) 通过审核, 加入回声洞。'
             }
         else:
             return {
-                'error':'此序号不存在或已被删除或已被审核！'
+                'error':'此序号不存在或已被删除或已被审核。'
             }
 
     def set_true_all(self) -> None:
@@ -456,11 +456,11 @@ class Cave():
                     self.save()
             self.save()
             return {
-                'success':f'操作成功，序号:({cave_id})不通过审核，已将其删除。'
+                'success':f'操作成功, 回声洞投稿 {cave_id} 不通过审核, 已将其删除。'
             }
         else:
             return {
-                'error':'此序号不存在或已被删除或已被审核！'
+                'error':'此序号不存在或已被删除或已被审核。'
             }
     
     def set_false_all(self) -> None:
@@ -478,12 +478,12 @@ class Cave():
 
     def get_state(self, cave_id:int) -> dict:
         '''
-        返回此id的审核情况\\
-        state值的意义：
-            state 0 : 通过审核，可正常获取
-            state 1 : 待审核
-            state 2 : 未通过审核
-            state 3 : 被-r删除
+        返回此 ID 的审核情况\\
+        `state` 值的意义:
+            `state 0`: 通过审核, 可正常获取
+            `state 1`: 待审核
+            `state 2`: 未通过审核
+            `state 3`: 内容被删除
         '''
         if self.check_id_state(id = cave_id, change_state = None):
             for i in self.cave:
@@ -493,5 +493,5 @@ class Cave():
                     }
         else:
             return {
-                'error':'此序号不存在或已被删除或已被审核'
+                'error':'此序号不存在或已被删除或已被审核。'
             }
