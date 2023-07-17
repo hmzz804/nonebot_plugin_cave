@@ -1,7 +1,8 @@
 import json
 from pathlib import Path
 
-from nonebot import Config, get_driver
+from nonebot import get_driver
+from nonebot.config import Config
 from nonebot.adapters import Bot
 from nonebot.adapters.onebot.v11 import (Event, GroupMessageEvent,
                                          PrivateMessageEvent)
@@ -41,9 +42,9 @@ def process_message(initial_msg:list) -> Message:
 cave_matcher = on_command(cmd='cave')
 @cave_matcher.handle()
 async def cave_handle(
-    bot:Bot,
-    event:GroupMessageEvent,
-    args:Message=CommandArg(),
+    bot: Bot,
+    event: GroupMessageEvent,
+    args: Message=CommandArg(),
     command=CommandStart(),
 ):
     cave = Cave(
