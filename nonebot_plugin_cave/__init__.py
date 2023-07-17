@@ -58,9 +58,9 @@ async def cave_handle(
         else:
             s_message = process_message(initial_msg=s_result['message'])
             await cave_matcher.finish(
-            message=f"回声洞 ——（{s_result['cave_id']}）\n"
+            message=f"回声洞 —— ({s_result['cave_id']})\n\n"
                     + s_message
-                    + f"\n——"
+                    + f"\n—— "
                     + (await bot.get_stranger_info(user_id=s_result['contributor_id']))["nickname"]
             )
 
@@ -140,9 +140,9 @@ async def cave_handle(
         else:
             g_message = process_message(initial_msg=g_result['message'])
             await cave_matcher.finish(
-            message=f"回声洞 ——（{g_result['cave_id']}）\n"
+            message=f"回声洞 —— ({g_result['cave_id']})\n\n"
                     + g_message
-                    + f"\n——"
+                    + f"\n—— "
                     + (await bot.get_stranger_info(user_id=g_result['contributor_id']))["nickname"]
             )
 
