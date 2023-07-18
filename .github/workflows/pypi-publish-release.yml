@@ -1,9 +1,9 @@
 name: Publish PyPI Release Package
 
 on:
-    release:
-      types: [published]
-    workflow_dispatch:
+  release:
+    types: [published]
+  workflow_dispatch:
 
 jobs:
   pypi-publish:
