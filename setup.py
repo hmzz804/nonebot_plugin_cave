@@ -5,8 +5,8 @@ with open("README.md", "r",encoding='utf-8') as f:
 
 setuptools.setup(
     name='nonebot_plugin_cave',
-    version='1.0.3',
-    description='cave plugin in Nonebot2',
+    version='1.0.4',
+    description='A cave plugin in Nonebot2',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author='hmzz804',
