@@ -2,8 +2,8 @@ name: Publish PyPI Dev Package
 
 on:
   push:
-    tags:
-      - '*'
+    branches: 
+      - main
   workflow_dispatch:
 
 jobs:
