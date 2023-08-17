@@ -10,6 +10,7 @@ from nonebot.adapters.onebot.v11.message import Message, MessageSegment
 from nonebot.log import logger
 from nonebot.params import CommandArg, CommandStart
 from nonebot.plugin import on_command
+from nonebot.exception import ActionFailed
 
 from .data_source import Cave
 
@@ -97,14 +98,18 @@ async def cave_handle(
             user_id = event.get_user_id()
         a_result = cave.add(message=a_message, contributor_id=user_id, state=1)
         for i in a_result['white_B']:
-            await bot.send_msg(
-                message_type="private",
-                user_id=i,
-                message=f"新的待审核回声洞 ({a_result['cave_id']})\n\n"
-                + Message(cqcode)
-                + f"\n—— {(await bot.get_stranger_info(user_id=user_id))['nickname']}"
-                + f" ({user_id})"
-            )
+            try:
+                await bot.send_msg(
+                    message_type="private",
+                    user_id=i,
+                    message=f"新的待审核回声洞 ({a_result['cave_id']})\n\n"
+                    + Message(cqcode)
+                    + f"\n—— {(await bot.get_stranger_info(user_id=user_id))['nickname']}"
+                    + f" ({user_id})"
+                )
+            except ActionFailed:
+                logger.warning(f"无法向用户 {i} 发送审核消息: ActionFailed")
+                logger.warning("可能的原因: 未添加对方为好友。")
         await cave_matcher.finish(message = Message(a_result['success']) )
     
     elif args[1] == "r":
