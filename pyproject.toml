@@ -6,7 +6,7 @@ authors = [{ name = "student_2333", email = "lgc2333@126.com" }]
 dependencies = [
     "nonebot2>=2.0.0",
     "pydantic>=1.10.4,<2",
-    "nonebot-plugin-send-anything-anywhere>=0.3.2",
+    "nonebot-plugin-alconna>=0.31.0",
 ]
 requires-python = ">=3.8,<4.0"
 readme = "README.md"
