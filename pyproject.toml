@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-cave"
 version = "2.0.0"
-description = "A plugin to "
+description = ""
 authors = [{ name = "hmzz804", email = "hmzz21669@gmail.com" }, { name = "XieXiLin", email = "support@xiexilin.com" }]
 dependencies = [
     "nonebot2>=2.0.0",
